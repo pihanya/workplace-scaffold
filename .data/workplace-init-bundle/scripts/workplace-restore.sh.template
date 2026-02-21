@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+# {{PROJECT_NAME}} — Workplace Restore Script
+# Restores a workplace from a backup archive created by workplace-backup.sh.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKPLACE_DIR="$(dirname "$SCRIPT_DIR")"
+PROJECT_CODE="{{PROJECT_CODE}}"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info()  { echo -e "${BLUE}[INFO]${NC}  $*"; }
+log_ok()    { echo -e "${GREEN}[OK]${NC}    $*"; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
+
+# ── Parse arguments ───────────────────────────────────
+
+DRY_RUN=false
+VERIFY_ONLY=false
+ARCHIVE=""
+TARGET=""
+
+usage() {
+    echo "Usage: $(basename "$0") [OPTIONS] <ARCHIVE>"
+    echo ""
+    echo "Restores a workplace from a backup archive."
+    echo ""
+    echo "Arguments:"
+    echo "  ARCHIVE               Path to .tar.gz or .zip backup archive"
+    echo ""
+    echo "Options:"
+    echo "  -t, --target DIR      Restore target directory (default: workplace root)"
+    echo "  -n, --dry-run         Show what would be restored without making changes"
+    echo "  -v, --verify-only     Verify archive integrity without extracting"
+    echo "  -h, --help            Show this help"
+    exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -t|--target)      TARGET="$2"; shift 2 ;;
+        -n|--dry-run)     DRY_RUN=true; shift ;;
+        -v|--verify-only) VERIFY_ONLY=true; shift ;;
+        -h|--help)        usage ;;
+        -*)               log_error "Unknown option: $1"; usage ;;
+        *)                ARCHIVE="$1"; shift ;;
+    esac
+done
+
+# ── Validate ──────────────────────────────────────────
+
+if [[ -z "$ARCHIVE" ]]; then
+    log_error "No archive file specified."
+    echo ""
+    usage
+fi
+
+if [[ ! -f "$ARCHIVE" ]]; then
+    log_error "Archive not found: $ARCHIVE"
+    exit 1
+fi
+
+# Detect format
+case "$ARCHIVE" in
+    *.tar.gz|*.tgz) FORMAT="tar.gz" ;;
+    *.zip)          FORMAT="zip" ;;
+    *)
+        log_error "Unsupported archive format. Expected .tar.gz, .tgz, or .zip"
+        exit 1
+        ;;
+esac
+
+RESTORE_DIR="${TARGET:-$WORKPLACE_DIR}"
+
+echo "================================================"
+echo "  ${PROJECT_CODE} — Workplace Restore"
+echo "================================================"
+echo ""
+log_info "Archive:     ${ARCHIVE}"
+log_info "Format:      ${FORMAT}"
+log_info "Restore to:  ${RESTORE_DIR}"
+if $DRY_RUN; then
+    log_warn "DRY RUN — no changes will be made"
+fi
+echo ""
+
+# ── Checksum verification ────────────────────────────
+
+CHECKSUM_FILE="${ARCHIVE}.sha256"
+
+if [[ -f "$CHECKSUM_FILE" ]]; then
+    log_info "Verifying checksum..."
+    EXPECTED=$(cut -d' ' -f1 "$CHECKSUM_FILE")
+
+    if command -v shasum &>/dev/null; then
+        ACTUAL=$(shasum -a 256 "$ARCHIVE" | cut -d' ' -f1)
+    elif command -v sha256sum &>/dev/null; then
+        ACTUAL=$(sha256sum "$ARCHIVE" | cut -d' ' -f1)
+    else
+        log_warn "No checksum tool found (shasum/sha256sum). Skipping verification."
+        ACTUAL="$EXPECTED"
+    fi
+
+    if [[ "$EXPECTED" != "$ACTUAL" ]]; then
+        log_error "Checksum mismatch!"
+        log_error "  Expected: $EXPECTED"
+        log_error "  Actual:   $ACTUAL"
+        exit 1
+    fi
+    log_ok "Checksum verified."
+else
+    log_warn "No checksum file found. Skipping integrity check."
+fi
+
+if $VERIFY_ONLY; then
+    echo ""
+    log_ok "Verification complete. Archive is valid."
+    exit 0
+fi
+
+# ── List contents (dry-run) ──────────────────────────
+
+if $DRY_RUN; then
+    log_info "Archive contents:"
+    echo ""
+    if [ "$FORMAT" = "tar.gz" ]; then
+        tar tzf "$ARCHIVE" | head -30
+    else
+        unzip -l "$ARCHIVE" | head -35
+    fi
+
+    TOTAL_COUNT=$(
+        if [ "$FORMAT" = "tar.gz" ]; then
+            tar tzf "$ARCHIVE" | wc -l
+        else
+            unzip -l "$ARCHIVE" | tail -1 | awk '{print $2}'
+        fi
+    )
+    echo "..."
+    log_info "Total entries: $(echo "$TOTAL_COUNT" | tr -d ' ')"
+    echo ""
+    log_ok "Dry run complete. No changes were made."
+    exit 0
+fi
+
+# ── Pre-restore safety ───────────────────────────────
+
+# Detect the top-level directory inside the archive
+if [ "$FORMAT" = "tar.gz" ]; then
+    ARCHIVE_ROOT=$(tar tzf "$ARCHIVE" | head -1 | cut -d'/' -f1)
+else
+    ARCHIVE_ROOT=$(unzip -l "$ARCHIVE" | awk 'NR>3{print $4}' | head -1 | cut -d'/' -f1)
+fi
+log_info "Archive root directory: ${ARCHIVE_ROOT}"
+
+EXTRACT_DIR=$(dirname "$RESTORE_DIR")
+
+# Warn if restoring into a non-empty directory
+if [[ -d "$RESTORE_DIR" ]] && [[ "$(ls -A "$RESTORE_DIR" 2>/dev/null)" ]]; then
+    log_warn "Target directory is not empty: $RESTORE_DIR"
+    echo -n "Continue and overwrite existing files? [y/N] "
+    read -r CONFIRM
+    if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
+        log_info "Restore cancelled."
+        exit 0
+    fi
+fi
+
+# ── Extract ──────────────────────────────────────────
+
+log_info "Extracting archive..."
+
+if [ "$FORMAT" = "tar.gz" ]; then
+    tar xzf "$ARCHIVE" -C "$EXTRACT_DIR"
+else
+    unzip -qo "$ARCHIVE" -d "$EXTRACT_DIR"
+fi
+
+# If the archive root differs from the target directory name, move contents
+EXPECTED_BASENAME=$(basename "$RESTORE_DIR")
+if [[ "$ARCHIVE_ROOT" != "$EXPECTED_BASENAME" ]] && [[ -d "${EXTRACT_DIR}/${ARCHIVE_ROOT}" ]]; then
+    log_info "Renaming extracted '${ARCHIVE_ROOT}' to '${EXPECTED_BASENAME}'..."
+    if [[ -d "$RESTORE_DIR" ]]; then
+        # Merge into existing directory
+        cp -a "${EXTRACT_DIR}/${ARCHIVE_ROOT}/." "$RESTORE_DIR/"
+        rm -rf "${EXTRACT_DIR}/${ARCHIVE_ROOT}"
+    else
+        mv "${EXTRACT_DIR}/${ARCHIVE_ROOT}" "$RESTORE_DIR"
+    fi
+fi
+
+log_ok "Archive extracted to: ${RESTORE_DIR}"
+
+# ── Post-restore checks ─────────────────────────────
+
+log_info "Verifying restored structure..."
+ERRORS=0
+
+for dir in knowledge scripts projects; do
+    if [[ -d "${RESTORE_DIR}/${dir}" ]]; then
+        log_ok "  ${dir}/ — present"
+    else
+        log_warn "  ${dir}/ — missing"
+        ERRORS=$((ERRORS + 1))
+    fi
+done
+
+for file in README.md AGENTS.md; do
+    if [[ -f "${RESTORE_DIR}/${file}" ]]; then
+        log_ok "  ${file} — present"
+    else
+        log_warn "  ${file} — missing"
+        ERRORS=$((ERRORS + 1))
+    fi
+done
+
+echo ""
+if [[ $ERRORS -gt 0 ]]; then
+    log_warn "${ERRORS} expected item(s) not found. Archive may be partial."
+else
+    log_ok "All expected items present."
+fi
+
+echo ""
+echo "================================================"
+echo "  Restore complete."
+echo "================================================"

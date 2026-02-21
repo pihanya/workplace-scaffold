@@ -129,6 +129,7 @@ scripts/
 ├── workplace-bootstrap.sh      # Bootstrap-скрипт (идемпотентный)
 ├── workplace-cleanup.sh        # Очистка артефактов сборки
 ├── workplace-backup.sh         # Бэкап workplace (если project_type != infra)
+├── workplace-restore.sh        # Восстановление workplace из бэкапа
 └── workplace-print-dir.sh      # Утилита: определение корня workplace
 ```
 
@@ -474,6 +475,7 @@ Workplace "${project_code}" успешно инициализирован.
     ├── workplace-bootstrap.sh.template
     ├── workplace-cleanup.sh.template
     ├── workplace-backup.sh.template
+    ├── workplace-restore.sh.template
     └── workplace-print-dir.sh.template
 ```
 
@@ -563,7 +565,7 @@ Workplace "${project_code}" успешно инициализирован.
 - Makefile с multi-tier сборкой (библиотеки → API → сервисы)
 - `memory_enabled=true`
 - Рекомендуются скрипты `workplace-sync-projects.sh` для мульти-репо
-- `workplace-backup.sh` с поддержкой git bundle
+- `workplace-backup.sh` с поддержкой git bundle, `workplace-restore.sh` для восстановления
 - Kubernetes/Nomad вместо Docker Compose
 
 ---
