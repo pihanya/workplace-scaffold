@@ -1,0 +1,190 @@
+# 📘 Repository Guidelines
+
+## 🧑‍💼 Agent Communication Style
+
+Use the following style rules in all AI Agent outputs (plans, summaries, reviews, QA notes) to improve scanability.
+
+### 🗣️ Tone
+
+- Get right to the point.
+- Be respectful and readily share strong opinions.
+- Be practical above all.
+- Use a formal, professional tone with corporate jargon where applicable.
+
+### 🧩 Structure (default)
+
+- Start every response with **TL;DR** (2-5 lines).
+- Include **Confidence: High / Medium / Low** near the start or end.
+- **Pre-computation:** Begin complex tasks with a concise conceptual checklist (3-5 bullets) before acting.
+- Use clear, skimmable headings and lists; prefer checklists for actionable work.
+
+### 🚨 Uncertainty & Failure
+
+- **Unsure?** Clearly state it. Do not hallucinate commands.
+- **Verification:** Suggest steps to verify assumptions (e.g., "Run `nomad node status` to confirm").
+- **Fallback:** If a tool fails, stop and analyze. Do not loop blindly.
+
+### 🛡️ Safety & Critical Thinking
+
+- **Red-Team:** Before suggesting a solution, self-critique it. If a recommendation risks data loss or security, decline or provide a safer alternative.
+- **Destructive Ops:** For operations like `zpool destroy`, `rm -rf`, or full infrastructure tear-downs, **require explicit user confirmation**.
+- **Validation:** After every tool call or edit, validate the result (e.g., `git status`, `nomad job status`, `bash -n script.sh`). Don't assume success.
+
+### 🧷 Emoji & Headings
+
+- Decorate every heading with exactly one emoji (example: `📘 Overview`).
+- Use emojis thoughtfully and professionally; avoid memes and overly playful icons.
+- Use up to two emojis per paragraph/logical block.
+- Emojis must complement text, never replace words.
+
+## 🧑‍💻 Development Process
+
+The developer working on this project is a full-stack professional that performs DevOps, infrastructure management, and quality assurance.
+
+Implementation of features, fixes, and improvements follows this workflow:
+
+- **DevOps:** Implement changes in services/apps configs and making possible deploy.
+- **Infrastructure:** Update orchestrator / Docker configs and deployment scripts if necessary.
+- **QA:** Verify changes locally before pushing.
+
+The task of the AI Agent is to help the developer during this process.
+
+## 🧱 Project Structure & Module Organization
+
+- `projects/`: Root directory for all deployed services and applications.
+  - Allowed content: files strictly required to configure/deploy/operate/maintain services (jobspecs, runtime configs, Dockerfiles, deploy scripts).
+  - Forbidden content: any documentation (README.md, GUIDE.md, design docs, runbooks, ad-hoc notes).
+- `knowledge/`: Canonical specs, standards, and documentation.
+- `scripts/`: Automation scripts.
+- `.data/`, `.logs/`, `.tmp/`, `.bak/`: Local development data and logs (ignored by git).
+
+## 🧾 Specs & Documentation
+
+This repository uses a structured documentation approach within the `knowledge/` directory.
+
+- **Hard Rule:** All documentation MUST live under `knowledge/` and MUST NOT be placed under `projects/`.
+- **Service docs location:** Use `knowledge/services/<service>/docs/` for service-scoped operational and technical docs.
+- **Cross-service docs location:** Use `knowledge/features/` for feature-level docs, `knowledge/standards/` for standards, and `knowledge/memory/` for state/history.
+- **Migration requirement:** If documentation is found in `projects/`, move it to an appropriate `knowledge/` location.
+
+- **Feature Specs:** Located in `knowledge/features/`. Follows a "Hub and Node" structure (see `knowledge/standards/standard-feature-specification.md`).
+- **Service Specs:** Located in `knowledge/services/`. Each service has `service-<name>.md`, `features/` subdirectory, and `docs/` subdirectory (see `knowledge/standards/standard-service-specification.md`).
+- **Standards:** Located in `knowledge/standards/`.
+- **Common Format:** Use `knowledge/standards/standard-specification-common-format.md` for shared structure.
+
+## 📐 Document Structure Requirements
+
+All specification documents in `knowledge/` MUST follow the standard format:
+
+1. **Header:** H1 with emoji, Backlink, Metadata block (`<!-- doc-deps ... -->`)
+2. **Body:** Content organized with emoji section headings
+3. **Footer:** Reference-style link definitions (inline links are FORBIDDEN)
+
+Key rules:
+
+- Use reference-style links: `[Text][link-id]` + footer definition
+- `[backlink-index]` must be the last line of the file
+
+## 📚 Knowledge Directory
+
+| Path                   | Description                                        |
+| :--------------------- | :------------------------------------------------- |
+| `knowledge/INDEX.md`   | Main knowledge base index                          |
+| `knowledge/services/`  | Service documentation                              |
+| `knowledge/features/`  | Feature documentation (Hub documents)              |
+| `knowledge/standards/` | Development standards                              |
+| `knowledge/memory/`    | Host specifications, state, agent decision history |
+
+## 📚 Sources of Truth
+
+- **Navigation:** `knowledge/INDEX.md`, `knowledge/*/INDEX.md`
+- **Current host state:** `knowledge/memory/host-state/`
+- **Agent Memories:** `knowledge/memory/agent-memories/`
+- **Service specs:** `knowledge/services/<name>/service-<name>.md`
+- **Feature specs:** `knowledge/features/<feature>/feature-<feature>.md`
+- **Standards:** `knowledge/standards/standard-*.md`
+
+## 🧠 Memory Management
+
+- **Directory:** `knowledge/memory/agent-memories/`
+- **Standard:** Follow `knowledge/standards/standard-agent-memory-format.md`
+- **File Naming:** `YYYY-MM-DD-HHMM_${title}.md` (kebab-case title).
+- **Content:** Store significant decisions, major state changes, and non-code context that helps future agents.
+- **Process:** Create a new file for each discrete memory/event. Do not maintain a single monolithic log.
+
+## 🧰 Build, Test, and Development Commands
+
+### 📍 Command Execution Context
+
+- Default assumption: execution starts from repository root.
+- If a command must be run from a subdirectory, the snippet MUST explicitly include `cd <subdir>`.
+
+### Ops / Drift Checks
+
+```bash
+scripts/collect_state.sh  # Collect current host state for drift detection via Git
+```
+
+### Markdown (Docs & Specs)
+
+```bash
+markdownlint-cli2 --config .markdownlint.yml <file>       # Validate
+markdownlint-cli2 --config .markdownlint.yml --fix <file>  # Auto-fix
+```
+
+## 🎨 Coding Style & Naming Conventions
+
+- **Scripts:** Bash with `set -euo pipefail`. Name scripts by action: `collect_state.sh`, `deploy_<job>.sh`.
+- **Configs:** 2-space indentation, align `=` within blocks when readable.
+
+## ✅ Mandatory Checks
+
+| Check ID  | Mandatory when                        | Command                                                       |
+| :-------- | :------------------------------------ | :------------------------------------------------------------ |
+| `CHK-001` | Any `scripts/*.sh` change             | `bash -n <script>`                                            |
+| `CHK-002` | Any `scripts/*.sh` change             | `shellcheck <script>`                                         |
+| `CHK-003` | Any changed `*.md` under `knowledge/` | `markdownlint-cli2 --config .markdownlint.yml <changed-docs>` |
+| `CHK-004` | Any docs change with links            | Verify referenced local paths exist                           |
+
+## 🧾 Commit & Pull Request Guidelines
+
+- **Commits:** Prefer Conventional Commits (e.g., `feat: ...`, `fix: ...`, `chore: ...`).
+- **Pull Requests:** Link relevant specs/issues. Ensure checks pass.
+
+## 🔐 Configuration & Secrets
+
+- **Secrets:** Keep out of Git; use environment-specific secret management.
+- **Configuration:** Document variables in `.env.example`.
+
+## 🔄 Maintenance Hooks
+
+When performing the following actions, you **MUST** check and update the corresponding documents.
+
+### 1. Creating a New Project/Service
+
+**Trigger:** Adding a new directory in `projects/`.
+**Actions:**
+
+- Create service spec in `knowledge/services/<name>/service-<name>.md`
+- Update `knowledge/services/INDEX.md`
+
+### 2. Implementing a New Feature
+
+**Trigger:** Adding cross-service functionality.
+**Actions:**
+
+- Create Feature Hub in `knowledge/features/<feature>/feature-<feature>.md`
+- Create Feature Nodes in relevant services
+- Update `knowledge/features/INDEX.md`
+
+## 🚦 Deploy Gate
+
+- **Pre-Deploy:** Validate configs + plan changes.
+- **Deploy:** Apply changes.
+- **Post-Deploy:** Verify status + health check.
+
+## 📚 Docs Drift Control
+
+- Any change adding/modifying a service or feature must update documentation in the same change set.
+- Command snippets in docs must be execution-context explicit.
+- Before handoff, run Markdown QA for touched docs.

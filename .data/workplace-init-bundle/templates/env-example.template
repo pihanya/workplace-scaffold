@@ -1,0 +1,10 @@
+# {{PROJECT_NAME}} — Environment Configuration
+# Copy this file to .env and fill in your values.
+# .env is ignored by Git and should never be committed.
+
+# AI API Keys (optional, for AI-assisted development)
+ANTHROPIC_API_KEY=
+OPENAI_API_KEY=
+
+# Project-specific configuration
+# Add your project-specific variables below

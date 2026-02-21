@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# {{PROJECT_NAME}} — Print Workplace Directory
+# Locates and prints the root directory of the workplace.
+set -euo pipefail
+
+PROJECT_CODE="{{PROJECT_CODE}}"
+
+# ── Strategy 1: Environment variable override ────────
+
+if [ -n "${WORKPLACE_DIR:-}" ]; then
+    if [ -d "$WORKPLACE_DIR" ]; then
+        echo "$WORKPLACE_DIR"
+        exit 0
+    fi
+fi
+
+# ── Strategy 2: Script location ──────────────────────
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CANDIDATE="$(dirname "$SCRIPT_DIR")"
+
+if [ -d "${CANDIDATE}/knowledge" ] && [ -d "${CANDIDATE}/projects" ]; then
+    echo "$CANDIDATE"
+    exit 0
+fi
+
+# ── Strategy 3: Walk up from PWD ─────────────────────
+
+DIR="$PWD"
+while [ "$DIR" != "/" ]; do
+    if [ -d "${DIR}/knowledge" ] && [ -d "${DIR}/projects" ] && [ -d "${DIR}/scripts" ]; then
+        echo "$DIR"
+        exit 0
+    fi
+    DIR="$(dirname "$DIR")"
+done
+
+# ── Not found ─────────────────────────────────────────
+
+echo "ERROR: Could not locate ${PROJECT_CODE} workplace directory." >&2
+echo "Set WORKPLACE_DIR environment variable or run from within the workplace." >&2
+exit 1

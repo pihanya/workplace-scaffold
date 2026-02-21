@@ -1,0 +1,69 @@
+# {{PROJECT_NAME}} — Build Automation
+# Usage: make <target>
+
+.PHONY: help build test clean workplace-backup workplace-cleanup
+
+SHELL := /bin/bash
+WORKPLACE_DIR := $(shell pwd)
+PROJECT_CODE := {{PROJECT_CODE}}
+
+## — Help ——————————————————————————————————————————————
+
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+## — Build ——————————————————————————————————————————————
+
+build: ## Build all projects
+	@echo "Building all projects..."
+	@for dir in projects/*/; do \
+		if [ -f "$$dir/build.gradle.kts" ] || [ -f "$$dir/build.gradle" ]; then \
+			echo "Building $$dir (Gradle)..."; \
+			cd "$$dir" && ./gradlew clean build -x test && cd "$(WORKPLACE_DIR)"; \
+		elif [ -f "$$dir/pom.xml" ]; then \
+			echo "Building $$dir (Maven)..."; \
+			cd "$$dir" && mvn clean install -DskipTests && cd "$(WORKPLACE_DIR)"; \
+		elif [ -f "$$dir/package.json" ]; then \
+			echo "Building $$dir (Node)..."; \
+			cd "$$dir" && yarn install && yarn build && cd "$(WORKPLACE_DIR)"; \
+		fi \
+	done
+	@echo "Build complete."
+
+test: ## Run tests for all projects
+	@echo "Running tests..."
+	@for dir in projects/*/; do \
+		if [ -f "$$dir/build.gradle.kts" ] || [ -f "$$dir/build.gradle" ]; then \
+			echo "Testing $$dir (Gradle)..."; \
+			cd "$$dir" && ./gradlew test && cd "$(WORKPLACE_DIR)"; \
+		elif [ -f "$$dir/pom.xml" ]; then \
+			echo "Testing $$dir (Maven)..."; \
+			cd "$$dir" && mvn test && cd "$(WORKPLACE_DIR)"; \
+		elif [ -f "$$dir/package.json" ]; then \
+			echo "Testing $$dir (Node)..."; \
+			cd "$$dir" && yarn test && cd "$(WORKPLACE_DIR)"; \
+		fi \
+	done
+	@echo "Tests complete."
+
+clean: ## Clean build artifacts
+	@echo "Cleaning build artifacts..."
+	@for dir in projects/*/; do \
+		if [ -f "$$dir/build.gradle.kts" ] || [ -f "$$dir/build.gradle" ]; then \
+			cd "$$dir" && ./gradlew clean && cd "$(WORKPLACE_DIR)"; \
+		elif [ -f "$$dir/pom.xml" ]; then \
+			cd "$$dir" && mvn clean && cd "$(WORKPLACE_DIR)"; \
+		elif [ -f "$$dir/package.json" ]; then \
+			rm -rf "$$dir/node_modules" "$$dir/dist"; \
+		fi \
+	done
+	@echo "Clean complete."
+
+## — Workplace ——————————————————————————————————————————
+
+workplace-backup: ## Create workplace backup
+	@./scripts/workplace-backup.sh
+
+workplace-cleanup: ## Clean workspace artifacts
+	@./scripts/workplace-cleanup.sh

@@ -1,0 +1,43 @@
+# {{PROJECT_NAME}} — Infrastructure Automation
+# Usage: make <target>
+
+.PHONY: help validate deploy status state-collect workplace-cleanup
+
+SHELL := /bin/bash
+WORKPLACE_DIR := $(shell pwd)
+PROJECT_CODE := {{PROJECT_CODE}}
+
+## — Help ——————————————————————————————————————————————
+
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+## — Validation ——————————————————————————————————————————
+
+validate: ## Validate all jobspecs/configs
+	@echo "Validating configs..."
+	@find projects/ -name '*.nomad.hcl' -exec sh -c 'echo "Validating {}..." && nomad job validate {}' \;
+	@echo "Validation complete."
+
+## — Deploy ——————————————————————————————————————————————
+
+deploy: ## Deploy a project (usage: make deploy PROJECT=<name>)
+	@if [ -z "$(PROJECT)" ]; then \
+		echo "Usage: make deploy PROJECT=<project-name>"; \
+		exit 1; \
+	fi
+	@./scripts/deploy_project.sh $(PROJECT)
+
+status: ## Show status of all jobs
+	@nomad job status
+
+## — State ——————————————————————————————————————————————
+
+state-collect: ## Collect current host state
+	@./scripts/collect_state.sh
+
+## — Workplace ——————————————————————————————————————————
+
+workplace-cleanup: ## Clean workspace artifacts
+	@./scripts/workplace-cleanup.sh

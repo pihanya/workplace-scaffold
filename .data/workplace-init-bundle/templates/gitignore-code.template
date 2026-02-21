@@ -1,0 +1,60 @@
+# Workspace data
+.data/
+.logs/
+.tmp/
+.bak/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+.secrets/
+
+# Docker volumes
+docker-volumes/
+
+# Build outputs
+**/build/
+**/target/
+**/dist/
+**/out/
+**/bin/
+
+# Dependencies
+**/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# Maven
+.m2/
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+
+# Editor backups
+*~
+\#*\#

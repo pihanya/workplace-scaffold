@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# {{PROJECT_NAME}} — Workspace Cleanup Script
+# Removes build artifacts, caches, and temporary files.
+# Idempotent: safe to run multiple times.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKPLACE_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info()  { echo -e "${BLUE}[INFO]${NC}  $*"; }
+log_ok()    { echo -e "${GREEN}[OK]${NC}    $*"; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
+
+DRY_RUN=false
+if [[ "${1:-}" == "--dry-run" ]] || [[ "${1:-}" == "-n" ]]; then
+    DRY_RUN=true
+    log_warn "Dry-run mode: no files will be deleted."
+fi
+
+echo "================================================"
+echo "  Workspace Cleanup"
+echo "================================================"
+echo ""
+
+TOTAL_FREED=0
+
+cleanup_dir() {
+    local dir="$1"
+    local description="$2"
+
+    if [ -d "$dir" ]; then
+        local size
+        size=$(du -sh "$dir" 2>/dev/null | cut -f1)
+        if [ "$DRY_RUN" = true ]; then
+            log_info "[DRY-RUN] Would remove: ${dir} (${size})"
+        else
+            rm -rf "$dir"
+            log_ok "Removed: ${dir} (${size}) — ${description}"
+        fi
+    fi
+}
+
+# ── Build artifacts ───────────────────────────────────
+
+log_info "Cleaning build artifacts in projects/..."
+
+for project_dir in "${WORKPLACE_DIR}"/projects/*/; do
+    [ -d "$project_dir" ] || continue
+    project_name=$(basename "$project_dir")
+
+    # Gradle
+    cleanup_dir "${project_dir}/build" "${project_name}: Gradle build output"
+    cleanup_dir "${project_dir}/.gradle" "${project_name}: Gradle cache"
+
+    # Maven
+    cleanup_dir "${project_dir}/target" "${project_name}: Maven target"
+
+    # Node
+    cleanup_dir "${project_dir}/node_modules" "${project_name}: Node modules"
+    cleanup_dir "${project_dir}/dist" "${project_name}: Node dist"
+
+    # Python
+    cleanup_dir "${project_dir}/__pycache__" "${project_name}: Python cache"
+    cleanup_dir "${project_dir}/.pytest_cache" "${project_name}: Pytest cache"
+done
+
+echo ""
+
+# ── IDE caches ────────────────────────────────────────
+
+log_info "Cleaning IDE caches..."
+cleanup_dir "${WORKPLACE_DIR}/.idea" "IntelliJ IDEA settings"
+
+echo ""
+
+# ── Logs rotation ─────────────────────────────────────
+
+LOGS_DIR="${WORKPLACE_DIR}/.logs"
+if [ -d "$LOGS_DIR" ]; then
+    LOGS_SIZE=$(du -sm "$LOGS_DIR" 2>/dev/null | cut -f1)
+    MAX_LOGS_MB=10
+    if [ "$LOGS_SIZE" -gt "$MAX_LOGS_MB" ]; then
+        log_info "Logs directory is ${LOGS_SIZE}MB (limit: ${MAX_LOGS_MB}MB). Cleaning oldest files..."
+        if [ "$DRY_RUN" = false ]; then
+            find "$LOGS_DIR" -type f -name "*.log" | sort | head -n -5 | xargs rm -f 2>/dev/null || true
+            log_ok "Old log files cleaned."
+        else
+            log_info "[DRY-RUN] Would clean old log files."
+        fi
+    else
+        log_ok "Logs directory size OK (${LOGS_SIZE}MB / ${MAX_LOGS_MB}MB)."
+    fi
+fi
+
+echo ""
+
+# ── macOS artifacts ───────────────────────────────────
+
+log_info "Cleaning macOS artifacts..."
+if [ "$DRY_RUN" = false ]; then
+    find "${WORKPLACE_DIR}" -name ".DS_Store" -type f -delete 2>/dev/null || true
+    find "${WORKPLACE_DIR}" -name "._*" -type f -delete 2>/dev/null || true
+    log_ok "macOS artifacts cleaned."
+else
+    DS_COUNT=$(find "${WORKPLACE_DIR}" -name ".DS_Store" -type f 2>/dev/null | wc -l | tr -d ' ')
+    log_info "[DRY-RUN] Would remove ${DS_COUNT} .DS_Store files."
+fi
+
+echo ""
+echo "================================================"
+echo "  Cleanup complete."
+echo "================================================"
