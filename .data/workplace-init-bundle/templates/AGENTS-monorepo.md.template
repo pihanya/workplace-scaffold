@@ -1,0 +1,178 @@
+# 📘 Repository Guidelines
+
+## 🧑‍💼 Agent Communication Style
+
+Use the following style rules in all AI Agent outputs (plans, summaries, reviews, QA notes) to improve scanability.
+
+### 🗣️ Tone
+
+- Get right to the point.
+- Be respectful and readily share strong opinions.
+- Be practical above all.
+- Use a formal, professional tone with corporate jargon where applicable.
+
+### 🧩 Structure (default)
+
+- Start every response with **TL;DR** (2-5 lines).
+- Include **Confidence: High / Medium / Low** near the start or end.
+- **Pre-computation:** Begin complex tasks with a concise conceptual checklist (3-5 bullets) before acting.
+- Use clear, skimmable headings and lists; prefer checklists for actionable work.
+
+### 🚨 Uncertainty & Failure
+
+- **Unsure?** Clearly state it. Do not hallucinate commands.
+- **Verification:** Suggest steps to verify assumptions.
+- **Fallback:** If a tool fails, stop and analyze. Do not loop blindly.
+
+### 🛡️ Safety & Critical Thinking
+
+- **Red-Team:** Before suggesting a solution, self-critique it.
+- **Destructive Ops:** For operations like `rm -rf`, database drops, force pushes, **require explicit user confirmation**.
+- **Validation:** After every tool call or edit, validate the result. Don't assume success.
+
+### 🧷 Emoji & Headings
+
+- Decorate every heading with exactly one emoji (example: `📘 Overview`).
+- Use emojis thoughtfully and professionally.
+- Use up to two emojis per paragraph/logical block.
+- Emojis must complement text, never replace words.
+
+## 🧑‍💻 Development Process
+
+The developer working on this project is a full-stack professional that performs development and quality assurance across multiple sub-projects within a monorepo.
+
+Implementation of features, fixes, and improvements follows this workflow:
+
+- **Identify scope:** Determine which sub-projects in `projects/` are affected.
+- **Implement:** Make changes in relevant sub-projects, respecting inter-project dependencies.
+- **Infrastructure:** Update Docker / deployment configs if necessary.
+- **QA:** Verify changes locally (unit/integration/E2E) before pushing. Run tests for all affected sub-projects.
+
+The task of the AI Agent is to help the developer during this process.
+
+## 🧱 Project Structure & Module Organization
+
+- `projects/`: Root directory for all sub-projects (services, libraries, applications).
+  - Each sub-project is a self-contained directory with its own build configuration.
+  - Allowed content: source code, build configs, runtime configs.
+  - Forbidden content: any documentation (README.md, GUIDE.md, design docs, runbooks).
+- `knowledge/`: Canonical specs, standards, and documentation.
+- `scripts/`: Automation scripts.
+- `.data/`, `.logs/`, `.tmp/`, `.bak/`: Local development data and logs (ignored by git).
+
+### 🔗 Inter-Project Dependencies
+
+- Document dependencies between sub-projects in `knowledge/services/`.
+- Build order: libraries first, then APIs, then services (see `make build`).
+- Shared types/contracts should live in dedicated library sub-projects.
+
+## 🧾 Specs & Documentation
+
+This repository uses a structured documentation approach within the `knowledge/` directory.
+
+- **Hard Rule:** All documentation MUST live under `knowledge/` and MUST NOT be placed under `projects/`.
+- **Feature Specs:** Located in `knowledge/features/`. Follows a "Hub and Node" structure (see `knowledge/standards/standard-feature-specification.md`).
+- **Service Specs:** Located in `knowledge/services/`. Each service has `service-<name>.md` (see `knowledge/standards/standard-service-specification.md`).
+- **Standards:** Located in `knowledge/standards/`.
+- **Common Format:** Use `knowledge/standards/standard-specification-common-format.md` for shared structure.
+- **When implementing changes:** Always consult `knowledge/features/` for architectural context and `knowledge/services/` for service-specific constraints.
+
+## 📐 Document Structure Requirements
+
+All specification documents in `knowledge/` MUST follow the standard format:
+
+1. **Header:** H1 with emoji, Backlink, Metadata block (`<!-- doc-deps ... -->`)
+2. **Body:** Content organized with emoji section headings
+3. **Footer:** Reference-style link definitions (inline links are FORBIDDEN)
+
+Key rules:
+
+- Use reference-style links: `[Text][link-id]` + footer definition
+- `[backlink-index]` must be the last line of the file
+
+## 🧰 Build, Test, and Development Commands
+
+### 📍 Command Execution Context
+
+- Default assumption: execution starts from repository root.
+- If a command must be run from a subdirectory, the snippet MUST explicitly include `cd <subdir>`.
+
+### Build
+
+```bash
+make build        # Build all sub-projects (respects dependency order)
+make test         # Run all tests
+make clean        # Clean build artifacts
+```
+
+### Markdown (Docs & Specs)
+
+```bash
+markdownlint-cli2 --config .markdownlint.yml <file>       # Validate
+markdownlint-cli2 --config .markdownlint.yml --fix <file>  # Auto-fix
+```
+
+## 🎨 Coding Style & Naming Conventions
+
+- Follow KISS (Keep It Simple, Stupid) and YAGNI (You Ain't Gonna Need It) principles.
+- Prefer readability over cleverness.
+- Use meaningful names for variables, functions, and classes.
+- Maintain consistent style within each sub-project's language/framework.
+
+## 🧪 Testing Guidelines
+
+- Write unit tests for business logic.
+- Write integration tests for API endpoints and data access.
+- Use test containers for database-dependent tests where applicable.
+- When a change affects multiple sub-projects, run tests for all of them.
+
+## ✅ Mandatory Checks
+
+| Check ID  | Mandatory when                        | Command                                                       |
+| :-------- | :------------------------------------ | :------------------------------------------------------------ |
+| `CHK-001` | Any `scripts/*.sh` change             | `bash -n <script>`                                            |
+| `CHK-002` | Any changed `*.md` under `knowledge/` | `markdownlint-cli2 --config .markdownlint.yml <changed-docs>` |
+| `CHK-003` | Any docs change with links            | Verify referenced local paths exist                           |
+| `CHK-004` | Any change in a sub-project           | Run tests for affected sub-project and its dependents         |
+
+## 🧾 Commit & Pull Request Guidelines
+
+- **Commits:** Prefer Conventional Commits (e.g., `feat: ...`, `fix: ...`, `chore: ...`).
+- **Scope:** Use sub-project name as scope: `feat(api-service): add health endpoint`.
+- **Pull Requests:**
+  - Link relevant specs/issues.
+  - Ensure all tests pass.
+  - Ensure code adheres to project standards (check `knowledge/standards/`).
+
+## 🔐 Configuration & Secrets
+
+- **Secrets:** Keep out of Git. Use `.env` only for local, uncommitted configuration.
+- **Configuration:** Document environment variables in `.env.example`.
+
+## 🔄 Maintenance Hooks
+
+When performing the following actions, you **MUST** check and update the corresponding documents.
+
+### 1. Creating a New Sub-Project
+
+**Trigger:** Adding a new directory in `projects/`.
+**Actions:**
+
+- Create service spec in `knowledge/services/<name>/service-<name>.md`
+- Update `knowledge/services/INDEX.md`
+- Update dependency documentation if it depends on or is depended upon by other sub-projects
+
+### 2. Implementing a New Feature
+
+**Trigger:** Adding cross-service functionality.
+**Actions:**
+
+- Create Feature Hub in `knowledge/features/<feature>/feature-<feature>.md`
+- Create Feature Nodes in relevant `knowledge/services/<service>/features/<feature>/`
+- Update `knowledge/features/INDEX.md`
+
+## 📚 Docs Drift Control
+
+- Any change adding/modifying a service or feature must update documentation in the same change set.
+- Command snippets in docs must be execution-context explicit.
+- Before handoff, run Markdown QA for touched docs.
