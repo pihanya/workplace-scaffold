@@ -78,17 +78,17 @@ Memory-файлы **НЕ** заменяют service specs или feature specs �
 
 ## 🧠 Типы Memory-файлов
 
-| Тип               | Описание                                  | Когда создавать                                 | Пример                       |
-| ----------------- | ----------------------------------------- | ----------------------------------------------- | ---------------------------- |
-| **Deployment**    | Деплой сервиса или изменение конфигурации | После `nomad job run` или изменения `nomad.hcl` | `nomad-deployment`           |
-| **Installation**  | Установка нового ПО/пакета                | После установки нового инструмента на хост      | `sanoid-installation`        |
-| **Configuration** | Изменение существующей конфигурации       | После правки конфигов без деплоя                | `nomad-config-update`        |
-| **Tuning**        | Оптимизация производительности            | После изменения ресурсов или параметров         | `speaches-cpu-tuning`        |
-| **Rollout**       | Запуск фичи в production                  | После включения фичи для пользователей          | `feature-x-rollout`          |
-| **Rollback**      | Откат изменений                           | После отката проблемного деплоя                 | `service-y-rollback`         |
-| **Documentation** | Документирование процессов                | После фиксации команд, процедур                 | `benchmark-commands-doc`     |
-| **Incident**      | Инцидент и его разрешение                 | После resolution инцидента                      | `outage-2024-01-15`          |
-| **Decision**      | Архитектурное/значимое решение            | После принятия важного решения                  | `storage-migration-decision` |
+| Тип               | Описание                                  | Когда создавать                                      | Пример                            |
+| ----------------- | ----------------------------------------- | ---------------------------------------------------- | --------------------------------- |
+| **Deployment**    | Деплой сервиса или изменение конфигурации | После деплоя сервиса или изменения конфигурации      | `service-deployment`              |
+| **Installation**  | Установка нового ПО/пакета                | После установки нового инструмента на хост           | `monitoring-tool-installation`    |
+| **Configuration** | Изменение существующей конфигурации       | После правки конфигов без деплоя                     | `orchestrator-config-update`      |
+| **Tuning**        | Оптимизация производительности            | После изменения ресурсов или параметров              | `search-service-cpu-tuning`       |
+| **Rollout**       | Запуск фичи в production                  | После включения фичи для пользователей               | `feature-x-rollout`               |
+| **Rollback**      | Откат изменений                           | После отката проблемного деплоя                      | `service-y-rollback`              |
+| **Documentation** | Документирование процессов                | После фиксации команд, процедур                      | `benchmark-commands-doc`          |
+| **Incident**      | Инцидент и его разрешение                 | После resolution инцидента                           | `outage-2024-01-15`               |
+| **Decision**      | Архитектурное/значимое решение            | После принятия важного решения                       | `storage-migration-decision`      |
 
 **Правила выбора типа:**
 
@@ -102,12 +102,12 @@ Memory-файлы **НЕ** заменяют service specs или feature specs �
 
 ### Метаданные (в начале файла)
 
-| Поле       | Формат                                      | Пример                         | Описание                         |
-| ---------- | ------------------------------------------- | ------------------------------ | -------------------------------- |
-| **Date**   | `YYYY-MM-DD HH:MM (UTC)`                    | `2026-02-08 11:05 (UTC)`       | Время выполнения действия        |
-| **Type**   | Один из типов выше                          | `deployment`                   | Категория события                |
-| **Action** | Глагол в прошедшем времени                  | `Deployed Nomad configuration` | Что было сделано (1 предложение) |
-| **Status** | `completed` / `in_progress` / `rolled_back` | `completed`                    | Текущий статус                   |
+| Поле       | Формат                                      | Пример                                   | Описание                         |
+| ---------- | ------------------------------------------- | ---------------------------------------- | -------------------------------- |
+| **Date**   | `YYYY-MM-DD HH:MM (UTC)`                    | `2026-02-08 11:05 (UTC)`                 | Время выполнения действия        |
+| **Type**   | Один из типов выше                          | `deployment`                             | Категория события                |
+| **Action** | Глагол в прошедшем времени                  | `Deployed updated service configuration` | Что было сделано (1 предложение) |
+| **Status** | `completed` / `in_progress` / `rolled_back` | `completed`                              | Текущий статус                   |
 
 ### Обязательные разделы
 
@@ -135,14 +135,14 @@ Memory-файлы **должны** содержать ссылки на связ
 
 ### Когда ссылаться
 
-| Тип Memory    | Ссылка на                       | Пример                                             |
-| ------------- | ------------------------------- | -------------------------------------------------- |
-| Deployment    | Service Spec                    | `knowledge/services/nomad/service-nomad.md`        |
-| Rollout       | Feature Hub                     | `knowledge/features/feature-x/feature-x.md`        |
-| Tuning        | Service Spec + Tech Ref         | `service-speaches.md` + `speaches-optimization.md` |
-| Configuration | Standard                        | `knowledge/standards/standard-nomad-config.md`     |
-| Decision      | Feature Hub или несколько specs | Связанные архитектурные документы                  |
-| Incident      | Service Spec + Runbook          | `service-x.md` + `troubleshooting-x.md`            |
+| Тип Memory    | Ссылка на                       | Пример                                                 |
+| ------------- | ------------------------------- | ------------------------------------------------------ |
+| Deployment    | Service Spec                    | `knowledge/services/my-service/service-my-service.md`  |
+| Rollout       | Feature Hub                     | `knowledge/features/feature-x/feature-x.md`            |
+| Tuning        | Service Spec + Tech Ref         | `service-my-service.md` + `my-service-optimization.md` |
+| Configuration | Standard                        | `knowledge/standards/standard-service-config.md`       |
+| Decision      | Feature Hub или несколько specs | Связанные архитектурные документы                      |
+| Incident      | Service Spec + Runbook          | `service-x.md` + `troubleshooting-x.md`                |
 
 ### Формат ссылок
 
@@ -151,12 +151,12 @@ Memory-файлы **должны** содержать ссылки на связ
 ```markdown
 ## 📚 References
 
-- **Service:** [Nomad Service][nomad-spec]
+- **Service:** [My Service][my-service-spec]
 - **Feature:** [Backup System][backup-feature]
 - **Standard:** [Deployment Process][deploy-std]
 
-[nomad-spec]: ../../services/nomad/service-nomad.md
-[backup-feature]: ../../features/zfs-backup-system/feature-zfs-backup-system.md
+[my-service-spec]: ../../services/my-service/service-my-service.md
+[backup-feature]: ../../features/backup-system/feature-backup-system.md
 [deploy-std]: ../standard-feature-specification.md
 ```
 
@@ -170,25 +170,25 @@ Memory-файлы **должны** содержать ссылки на связ
 
 ### Компоненты
 
-| Компонент | Формат       | Пример                   | Описание                          |
-| --------- | ------------ | ------------------------ | --------------------------------- |
-| **Date**  | `YYYY-MM-DD` | `2026-02-08`             | Дата события                      |
-| **Time**  | `HHMM`       | `1105`                   | Время (24ч, UTC) без разделителей |
-| **Title** | `kebab-case` | `speaches-memory-tuning` | Краткое описание содержимого      |
+| Компонент | Формат       | Пример                     | Описание                          |
+| --------- | ------------ | -------------------------- | --------------------------------- |
+| **Date**  | `YYYY-MM-DD` | `2026-02-08`               | Дата события                      |
+| **Time**  | `HHMM`       | `1105`                     | Время (24ч, UTC) без разделителей |
+| **Title** | `kebab-case` | `my-service-memory-tuning` | Краткое описание содержимого      |
 
 ### Примеры имён
 
 ```text
-2026-02-08-1105_speaches-memory-tuning.md
-2026-02-02-0353_nomad-deployment.md
-2026-02-02-0301_sanoid-installation.md
+2026-02-08-1105_my-service-memory-tuning.md
+2026-02-02-0353_service-deployment.md
+2026-02-02-0301_monitoring-tool-installation.md
 2026-01-15-1423_outage-postgres-recovery.md
 ```
 
 ### Правила
 
 - **Никогда** не используйте пробелы — только kebab-case
-- **Сокращайте** названия сервисов при известности (`nomad` vs `nomad-orchestrator`)
+- **Сокращайте** названия сервисов при известности (`app` vs `application-server`)
 - **Указывайте** действие (`tuning`, `deployment`, `rollback`)
 - **При повторном событии** — создавайте новый файл с новой датой
 
@@ -237,55 +237,55 @@ flowchart TB
 ### Шаблон Deployment
 
 ````markdown
-# Nomad Configuration Deployment
+# Service Configuration Deployment
 
 - **Date:** 2026-02-02 03:53 (UTC)
 - **Type:** deployment
-- **Action:** Deployed Nomad agent configuration to pihanya-hawk
+- **Action:** Deployed updated service configuration
 - **Status:** completed
 
 ## 🎯 Context
 
-Обновлена конфигурация Nomad агента для поддержки новых host volumes.
+Обновлена конфигурация сервиса для поддержки новых storage volumes.
 
 ## 🔧 Changes
 
-- Source: `projects/nomad/nomad.hcl`
-- Script: `scripts/deploy_nomad.sh`
-- Добавлен host volume `speaches-data`
+- Source: `configs/service-config.yml`
+- Script: `scripts/deploy_service.sh`
+- Добавлен storage volume `service-data`
 
 ## ✅ Validation
 
 ```bash
-nomad config validate /etc/nomad.d
-nomad agent status  # Проверка запуска
+service-cli config validate /etc/service.d
+service-cli status  # Проверка запуска
 ```
 
 ## 💥 Impact
 
-- **Сервисы:** Все Nomad-задания получили доступ к новому volume
+- **Сервисы:** Все задания получили доступ к новому volume
 - **Требует:** Перезапуск для применения конфигурации
 
 ## 📚 References
 
-- **Service:** [Nomad Service][nomad-service]
+- **Service:** [My Service][my-service]
 
-[nomad-service]: ../../services/nomad/service-nomad.md
+[my-service]: ../../services/my-service/service-my-service.md
 ```
 
 ### Шаблон Tuning
 
 ```markdown
-# Speaches CPU and Thread Tuning
+# Search Service CPU and Thread Tuning
 
 - **Date:** 2026-02-08 11:55 (UTC)
 - **Type:** tuning
-- **Action:** Optimized CPU and thread allocation for speaches service
+- **Action:** Optimized CPU and thread allocation for search service
 - **Status:** completed
 
 ## 🎯 Context
 
-Сервис speaches показывал высокую нагрузку на CPU. Проведён анализ и оптимизация.
+Сервис поиска показывал высокую нагрузку на CPU. Проведён анализ и оптимизация.
 
 ## 🔧 Changes
 
@@ -294,12 +294,11 @@ nomad agent status  # Проверка запуска
 | CPU      | 20000 | 28000 | +40%      |
 | Threads  | 4     | 28    | +600%     |
 
-```hcl
-# В jobspec:
-resources {
-  cpu    = 28000
-  memory = 24576
-}
+```yaml
+# В конфигурации ресурсов:
+resources:
+  cpu: 28000
+  memory: 24576
 ```
 
 ## ✅ Validation
@@ -309,32 +308,32 @@ resources {
 
 ## 💥 Impact
 
-- **Сервис:** speaches (CPU-bound)
+- **Сервис:** search-service (CPU-bound)
 - **Производительность:** Снижение latency на 35%
-- **Риски:** Высокое потребление CPU可能影响 другие сервисы
+- **Риски:** Высокое потребление CPU может влиять на другие сервисы
 
 ## 📚 References
 
-- **Service:** [Speaches Service][speaches-service]
+- **Service:** [Search Service][search-service]
 - **Commands:** [Benchmark Commands][benchmark-cmd]
 
-[speaches-service]: ../../services/speaches/service-speaches.md
-[benchmark-cmd]: ./2026-02-08-2047_speaches-benchmark-commands-documented.md
+[search-service]: ../../services/search-service/service-search-service.md
+[benchmark-cmd]: ./2026-02-08-2047_search-service-benchmark-commands-documented.md
 ```
 
 ### Шаблон Documentation
 
 ```markdown
-# Speaches Benchmark Commands Documented
+# Search Service Benchmark Commands Documented
 
 - **Date:** 2026-02-08 20:47 (UTC)
 - **Type:** documentation
-- **Action:** Documented benchmark commands for speaches service
+- **Action:** Documented benchmark commands for search service
 - **Status:** completed
 
 ## 🎯 Context
 
-Команды для нагрузочного тестирования speaches были разбросаны. Систематизированы в одном месте.
+Команды для нагрузочного тестирования сервиса поиска были разбросаны. Систематизированы в одном месте.
 
 ## 🔧 Commands
 
@@ -356,15 +355,15 @@ hey -z 30s -c 100 -m POST \
 ## ✅ Validation
 
 - Все команды протестированы на production
-- Добавлены в `scripts/benchmark_speaches.sh`
+- Добавлены в `scripts/benchmark_service.sh`
 
 ## 📚 References
 
-- **Service:** [Speaches Service][speaches-service]
+- **Service:** [Search Service][search-service]
 - **Tuning:** [CPU Tuning][cpu-tuning]
 
-[speaches-service]: ../../services/speaches/service-speaches.md
-[cpu-tuning]: ./2026-02-08-1155_speaches-cpu-thread-tuning.md
+[search-service]: ../../services/search-service/service-search-service.md
+[cpu-tuning]: ./2026-02-08-1155_search-service-cpu-thread-tuning.md
 ````
 
 ---
@@ -398,7 +397,7 @@ hey -z 30s -c 100 -m POST \
 ### Обновление индекса
 
 - [ ] Добавить запись в `knowledge/memory/agent-memories/INDEX.md`
-- [ ] Обновить `projects/mkdocs-knowledge/mkdocs.yml` при необходимости
+- [ ] Обновить навигацию документации при необходимости
 
 ---
 

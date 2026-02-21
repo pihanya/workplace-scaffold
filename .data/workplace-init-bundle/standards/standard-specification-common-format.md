@@ -9,7 +9,6 @@ provides_for:
   - knowledge/standards/standard-service-specification.md
   - knowledge/standards/standard-feature-specification.md
   - knowledge/standards/standard-service-dependencies.md
-  - knowledge/standards/standard-supporting-documentation.md
 -->
 
 Этот стандарт определяет универсальный формат для документов спецификаций (Markdown) в проекте. Соблюдение этого формата обеспечивает:
@@ -246,18 +245,18 @@ provides_for: []
 
 ---
 
-## 📚 Примеры из Проекта
+## 📚 Примеры Применения
 
 ### Пример 1: Service Specification
 
 Спецификации сервисов (`knowledge/services/<name>/service-<name>.md`) следуют этому стандарту:
 
 ```text
-# Nomad Service Specification
+# Payment Service Specification
 
 ## 📘 Цель
 
-Краткое описание сервиса Nomad.
+Краткое описание сервиса обработки платежей.
 
 ## 🧠 Функциональность / Архитектура
 
@@ -277,20 +276,20 @@ provides_for: []
 Hub-документы фич (`knowledge/features/<feature>/feature-<feature>.md`) также следуют стандарту:
 
 ```text
-# Nomad Deployment
+# User Authentication
 
 [⬅️ К оглавлению][backlink-index]
 
 <!-- doc-deps
-id: feature-nomad-deployment
+id: feature-user-authentication
 depends_on: []
 provides_for:
-  - ../../services/nomad/features/nomad-deployment/feature-nomad-deployment.md
+  - ../../services/auth/features/user-authentication/feature-user-authentication.md
 -->
 
 ## 📘 Общее описание задачи
 
-Описание функциональности развертывания через Nomad.
+Описание функциональности аутентификации пользователей.
 
 ## 🏗️ Архитектурные принципы
 
@@ -312,20 +311,20 @@ provides_for:
 Node-документы фич (`knowledge/services/<service>/features/<feature>/feature-<feature>.md`):
 
 ```text
-# Nomad Deployment - Nomad Service
+# User Authentication - Auth Service
 
 [⬅️ К оглавлению][backlink-index]
 
 <!-- doc-deps
-id: service-nomad-feature-nomad-deployment
+id: service-auth-feature-user-authentication
 depends_on:
-  - ../../../../features/nomad-deployment/feature-nomad-deployment.md
+  - ../../../../features/user-authentication/feature-user-authentication.md
 provides_for: []
 -->
 
 ## 📘 Цель
 
-Роль сервиса Nomad в реализации функциональности развертывания.
+Роль сервиса Auth в реализации функциональности аутентификации.
 
 ## 🧠 Функциональность / Архитектура
 

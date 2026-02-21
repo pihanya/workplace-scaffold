@@ -2,7 +2,7 @@
 
 [⬅️ К оглавлению][backlink-parent]
 
-Этот раздел содержит стандарты и руководства по документированию проекта bepiscorp-hawk.
+Этот раздел содержит стандарты и руководства по документированию проекта.
 
 ---
 
@@ -24,9 +24,6 @@
 - **[Стандарт управления зависимостями между сервисами][standard-deps]**
   Документирование, управление и валидация зависимостей между сервисами. Включает dependency mapping, deployment order, blast radius analysis.
 
-- **[Стандарт вспомогательной документации][standard-supporting]**
-  Шаблоны для Technology Reference, Operational Runbook и Troubleshooting Guide в `docs/` поддиректории сервисов.
-
 - **[Стандарт формата memory-файлов агента][standard-memory]**
   Формат и структура для memory-файлов в `knowledge/memory/agent-memories/`. Определяет типы записей, обязательные поля, шаблоны и интеграцию с документацией.
 
@@ -40,7 +37,6 @@ flowchart TD
     Common --> ServiceSpec["standard-service-specification.md"]
     Common --> FeatureSpec["standard-feature-specification.md"]
     Common --> DepsSpec["standard-service-dependencies.md"]
-    Common --> SupportingDocs["standard-supporting-documentation.md"]
     Common --> AgentMemory["standard-agent-memory-format.md"]
 ```
 
@@ -67,6 +63,5 @@ flowchart TD
 [standard-services]: ./standard-service-specification.md
 [standard-features]: ./standard-feature-specification.md
 [standard-deps]: ./standard-service-dependencies.md
-[standard-supporting]: ./standard-supporting-documentation.md
 [standard-memory]: ./standard-agent-memory-format.md
 [backlink-parent]: ../INDEX.md

@@ -38,7 +38,7 @@ provides_for:
 - [ ] **Configuration values:** Порты, memory sizes, конкретные параметры
 - [ ] **Deployment commands:** `nomad job run`, `docker run` и т.п.
 - [ ] **Code snippets:** curl examples, test scripts
-- [ ] **Technology internals:** CUDA, driver details, quantization specifics
+- [ ] **Technology internals:** Детали работы underlying технологий (фреймворки, драйверы, оптимизации)
 - [ ] **Troubleshooting:** Процедуры решения проблем
 
 > **Правило:** Feature Hub отвечает на вопросы **"Зачем?"** и **"Что?"**, но не **"Как именно?"**.
@@ -155,8 +155,8 @@ flowchart LR
 
 | Порядок | Сервис      | Действие       | Проверка                 |
 | :------ | :---------- | :------------- | :----------------------- |
-| 1       | `service-b` | Deploy jobspec | Readiness check проходит |
-| 2       | `service-a` | Deploy jobspec | Functional check         |
+| 1       | `service-b` | Deploy service | Readiness check проходит |
+| 2       | `service-a` | Apply config   | Functional check         |
 
 ---
 
@@ -327,25 +327,23 @@ provides_for: []
 
 ---
 
-## 📚 Примеры из проекта
+## 📚 Примеры применения паттерна Hub-and-Node
 
-Реальные фичи в проекте bepiscorp-hawk:
+Типовые примеры организации Feature Card по паттерну Hub-and-Node:
 
-1. **Nomad Deployment** (`knowledge/features/nomad-deployment/`)
-   - Hub: `feature-nomad-deployment.md`
-   - Node: `knowledge/services/nomad/features/nomad-deployment/feature-nomad-deployment.md`
+1. **Full-Text Search** (`knowledge/features/full-text-search/`)
+   - Hub: `feature-full-text-search.md` — описывает бизнес-задачу полнотекстового поиска, Data Flow между сервисами, Deployment Sequence.
+   - Node (api-gateway): `knowledge/services/api-gateway/features/full-text-search/feature-full-text-search.md` — маршрутизация поисковых запросов, валидация параметров.
+   - Node (search-service): `knowledge/services/search-service/features/full-text-search/feature-full-text-search.md` — индексация данных, построение запросов, ранжирование результатов.
 
-2. **LLM DeepSeek R1** (`knowledge/features/llm-deepseek-r1/`)
-   - Hub: `feature-llm-deepseek-r1.md`
-   - Node: `knowledge/services/vllm/features/llm-deepseek-r1/feature-llm-deepseek-r1.md`
+2. **User Notifications** (`knowledge/features/user-notifications/`)
+   - Hub: `feature-user-notifications.md` — описывает систему уведомлений, каналы доставки, приоритеты сообщений.
+   - Node (notification-service): `knowledge/services/notification-service/features/user-notifications/feature-user-notifications.md` — логика отправки, retry policy, шаблоны сообщений.
+   - Node (api-gateway): `knowledge/services/api-gateway/features/user-notifications/feature-user-notifications.md` — API для подписки на уведомления, получение истории.
 
-3. **LLM Chatting** (`knowledge/features/llm-chatting/`)
-   - Hub: `feature-llm-chatting.md`
-   - Node: `knowledge/services/open-webui/features/llm-chatting/feature-llm-chatting.md`
-
-4. **Infrastructure E2E Testing** (`knowledge/features/infrastructure-e2e-testing/`)
-   - Hub: `feature-infrastructure-e2e-testing.md`
-   - Node: `knowledge/services/petstore/features/infrastructure-e2e-testing/feature-infrastructure-e2e-testing.md`
+3. **Rate Limiting** (`knowledge/features/rate-limiting/`)
+   - Hub: `feature-rate-limiting.md` — описывает стратегию ограничения запросов, архитектурные решения по выбору алгоритма.
+   - Node (api-gateway): `knowledge/services/api-gateway/features/rate-limiting/feature-rate-limiting.md` — применение лимитов на входящие запросы, конфигурация правил.
 
 ---
 

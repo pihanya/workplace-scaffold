@@ -112,7 +112,8 @@ knowledge/
 │   ├── standard-specification-common-format.md
 │   ├── standard-service-specification.md
 │   ├── standard-feature-specification.md
-│   └── standard-service-dependencies.md
+│   ├── standard-service-dependencies.md
+│   └── standard-agent-memory-format.md  # Только если memory_enabled=true
 └── memory/                     # Только если memory_enabled=true
     ├── INDEX.md
     └── agent-memories/
@@ -270,9 +271,9 @@ projects/
 
 Если `agent_guidelines=true`, создай:
 
-- `AGENTS.md`
-- `AGENTS.md` — soft link к AGENTS.md
-- `GEMINI.md` — soft link к AGENTS.md
+- `AGENTS.md` — основной файл
+- `CLAUDE.md` — symlink к AGENTS.md
+- `GEMINI.md` — symlink к AGENTS.md
 
 #### Контрольная точка 3
 
@@ -414,7 +415,7 @@ git commit -m "feat: initialize ${project_code} workplace
 - Create knowledge/ directory with standards and documentation structure
 - Create scripts/ with bootstrap, cleanup, and utility scripts
 - Create projects/ directory for deployable services
-- Add README.md, CLAUDE.md, and configuration files
+- Add README.md, AGENTS.md, and configuration files
 - Follow Hub-and-Node documentation pattern
 ```
 
@@ -431,7 +432,7 @@ Workplace "${project_code}" успешно инициализирован.
   projects/     — K проектов
 
 Следующие шаги:
-  1. Ревью README.md и CLAUDE.md
+  1. Ревью README.md и AGENTS.md
   2. Настройка .env (скопировать из .env.example)
   3. Запуск ./scripts/workplace-bootstrap.sh
   4. Добавить первый проект: mkdir -p projects/<name>
@@ -626,7 +627,7 @@ Workplace "${project_code}" успешно инициализирован.
 
 Агент (Фаза 3):
   → README.md с архитектурой, стеком, быстрым стартом
-  → CLAUDE.md с Java/Gradle командами, MapStruct, Liquibase
+  → AGENTS.md с Java/Gradle командами, MapStruct, Liquibase
   → Контрольная точка
 
 Агент (Фаза 4):

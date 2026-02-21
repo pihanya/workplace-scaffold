@@ -31,17 +31,17 @@ provides_for:
 - [ ] **API Интерфейсы:** Порты, протоколы, endpoints (контракты)
 - [ ] **Зависимости:** Dependency Map (Hard/Soft/Infrastructure)
 - [ ] **Node Resources:** Базовые требования к ресурсам
-- [ ] **Deployment:** Prerequisites + commands + jobspec location
+- [ ] **Deployment:** Prerequisites + commands + deployment config location
 - [ ] **Configuration:** Environment variables и ключевые параметры
 - [ ] **Validation Tests:** Post-deployment checklist
 
 ### Service Specification — НЕ ДОЛЖНА содержать
 
-- [ ] **Technology internals:** Как работает технология "под капотом" (CUDA, quantization, driver details)
+- [ ] **Technology internals:** Как работает технология "под капотом" (driver internals, framework-specific optimization details)
 - [ ] **Deep dive параметров:** Детальное объяснение каждого параметра и trade-offs
 - [ ] **Operational runbooks:** Backup/restore, disaster recovery, maintenance procedures
 - [ ] **Troubleshooting:** Диагностика и решение проблем
-- [ ] **Raw Docker/Compose:** Docker команды вне контекста Nomad
+- [ ] **Raw deployment commands:** Необработанные команды деплоя, не связанные с используемым оркестратором
 
 > **Правило:** Service Spec отвечает на вопрос **"Что сервис умеет и как его развернуть?"**.
 > Для technology internals → `docs/TECHNOLOGY.md`.
@@ -135,10 +135,10 @@ provides_for:
 
 **Формат:** См. [Стандарт управления зависимостями][standard-dependencies]
 
-| Зависимость | Тип            | Направление | Критичность | Проверка          |
-| :---------- | :------------- | :---------- | :---------- | :---------------- |
-| `service-x` | Hard           | Upstream    | Critical    | `curl -fsS <url>` |
-| `nomad`     | Infrastructure | Upstream    | Critical    | Nomad constraint  |
+| Зависимость    | Тип            | Направление | Критичность | Проверка                  |
+| :------------- | :------------- | :---------- | :---------- | :------------------------ |
+| `service-x`    | Hard           | Upstream    | Critical    | `curl -fsS <url>`         |
+| `orchestrator` | Infrastructure | Upstream    | Critical    | Orchestrator health check |
 
 ---
 
@@ -163,19 +163,29 @@ provides_for:
 ### Commands
 
 ```bash
-# Validate
-nomad job validate projects/<service>/<service>.nomad.hcl
+# === Choose the section matching your orchestrator ===
 
-# Deploy
-nomad job run projects/<service>/<service>.nomad.hcl
+# --- Option A: Nomad ---
+# nomad job validate projects/<service>/<service>.nomad.hcl
+# nomad job run projects/<service>/<service>.nomad.hcl
+# nomad job status <service>
 
-# Status
-nomad job status <service>
+# --- Option B: Docker Compose ---
+# docker compose -f projects/<service>/docker-compose.yml up -d
+# docker compose -f projects/<service>/docker-compose.yml ps
+
+# --- Option C: Kubernetes ---
+# kubectl apply -f projects/<service>/deployment.yaml
+# kubectl rollout status deployment/<service>
+
+# --- Option D: Bare process / systemd ---
+# systemctl start <service>
+# systemctl status <service>
 ```
 
 ### Config Location
 
-- **Jobspec:** `projects/<service-name>/<service-name>.nomad.hcl`
+- **Deployment config:** `projects/<service-name>/` (формат зависит от оркестратора)
 
 ---
 
@@ -206,7 +216,7 @@ nomad job status <service>
 
 ### Post-Deployment Checklist
 
-- [ ] `nomad job status <service>` = running
+- [ ] Service status = running (проверка через CLI оркестратора или `systemctl`)
 - [ ] Health endpoint responds
 - [ ] Key functionality works
 
@@ -270,20 +280,19 @@ curl -fsS http://<host>:<port>/health
 
 ## 🔗 Связь с проектами
 
-Директория `projects/` содержит deployable units (Nomad jobspecs, Docker Compose files, конфигурационные файлы) для сервисов. Каждый проект в `projects/` связан с соответствующей спецификацией в `knowledge/services/`.
+Директория `projects/` содержит deployable units (Nomad jobspecs, Docker Compose files, Kubernetes manifests, конфигурационные файлы) для сервисов. Каждый проект в `projects/` связан с соответствующей спецификацией в `knowledge/services/`.
 
 **Примеры:**
 
-| Deployment Config                          | Service Spec                                          | Deployment Type |
-| :----------------------------------------- | :---------------------------------------------------- | :-------------- |
-| `projects/nomad/nomad.hcl`                 | `knowledge/services/nomad/service-nomad.md`           | systemd service |
-| `projects/vllm/vllm-deepseek-r1.nomad.hcl` | `knowledge/services/vllm/service-vllm.md`             | Nomad job       |
-| `projects/open-webui/open-webui.nomad.hcl` | `knowledge/services/open-webui/service-open-webui.md` | Nomad job       |
-| `projects/petstore/petstore.nomad.hcl`     | `knowledge/services/petstore/service-petstore.md`     | Nomad job       |
+| Deployment Config                                    | Service Spec                                                      | Deployment Type |
+| :--------------------------------------------------- | :---------------------------------------------------------------- | :-------------- |
+| `projects/api-gateway/docker-compose.yml`            | `knowledge/services/api-gateway/service-api-gateway.md`           | Docker Compose  |
+| `projects/worker-service/worker-service.nomad.hcl`   | `knowledge/services/worker-service/service-worker-service.md`     | Nomad job       |
+| `projects/auth-service/deployment.yaml`              | `knowledge/services/auth-service/service-auth-service.md`         | Kubernetes      |
+| `projects/monitoring-agent/monitoring-agent.service` | `knowledge/services/monitoring-agent/service-monitoring-agent.md` | systemd service |
 
 **Дополнительные артефакты в projects/:**
 
-- `knowledge/memory/host-state/` — текущее состояние хоста (собирается через `scripts/collect_state.sh`)
 - `projects/<service>/` — дополнительные скрипты, конфигурационные файлы
 
 Основная техническая спецификация сервиса всегда находится в `knowledge/services/`, а deployable units — в `projects/`.
@@ -298,73 +307,45 @@ curl -fsS http://<host>:<port>/health
 
 ---
 
-## 📚 Примеры из проекта
+## 📚 Примеры
 
-Реальные сервисы в проекте bepiscorp-hawk:
+Ниже приведены примеры структуры директорий для типичных сервисов разного типа.
 
-### 1. Nomad Service
+### 1. Backend API Service
 
 ```mermaid
 flowchart TD
-    NomadRoot["knowledge/services/nomad/"]
-    NomadRoot --> NomadSpec["service-nomad.md"]
-    NomadRoot --> NomadFeatures["features/"]
-    NomadFeatures --> NomadFeatureDir["nomad-deployment/"]
-    NomadFeatureDir --> NomadFeature["feature-nomad-deployment.md"]
-    NomadRoot --> NomadDocs["docs/"]
-    NomadDocs --> NomadTroubleshooting["TROUBLESHOOTING.md"]
+    ApiRoot["knowledge/services/backend-api/"]
+    ApiRoot --> ApiSpec["service-backend-api.md"]
+    ApiRoot --> ApiFeatures["features/"]
+    ApiFeatures --> ApiFeatureDir["user-management/"]
+    ApiFeatureDir --> ApiFeature["feature-user-management.md"]
+    ApiRoot --> ApiDocs["docs/"]
+    ApiDocs --> ApiTech["TECHNOLOGY.md"]
+    ApiDocs --> ApiTroubleshooting["TROUBLESHOOTING.md"]
+    ApiDocs --> ApiRunbook["RUNBOOK.md"]
 ```
 
-- **Назначение:** Оркестратор контейнеров
+- **Назначение:** REST API сервис, обрабатывающий бизнес-логику приложения
+- **Deployment:** Docker Compose или Kubernetes deployment
+- **Hub Feature:** `knowledge/features/user-management/`
+
+### 2. Infrastructure Service
+
+```mermaid
+flowchart TD
+    InfraRoot["knowledge/services/monitoring-agent/"]
+    InfraRoot --> InfraSpec["service-monitoring-agent.md"]
+    InfraRoot --> InfraFeatures["features/"]
+    InfraFeatures --> InfraFeatureDir["metrics-collection/"]
+    InfraFeatureDir --> InfraFeature["feature-metrics-collection.md"]
+    InfraRoot --> InfraDocs["docs/"]
+    InfraDocs --> InfraTroubleshooting["TROUBLESHOOTING.md"]
+```
+
+- **Назначение:** Агент мониторинга, собирающий метрики с хоста и сервисов
 - **Deployment:** systemd service на хосте
-- **Hub Feature:** `knowledge/features/nomad-deployment/`
-
-### 2. vLLM Service
-
-```mermaid
-flowchart TD
-    VllmRoot["knowledge/services/vllm/"]
-    VllmRoot --> VllmSpec["service-vllm.md"]
-    VllmRoot --> VllmFeatures["features/"]
-    VllmFeatures --> VllmFeatureDir["llm-deepseek-r1/"]
-    VllmFeatureDir --> VllmFeature["feature-llm-deepseek-r1.md"]
-```
-
-- **Назначение:** LLM inference engine
-- **Deployment:** Nomad job с GPU
-- **Hub Feature:** `knowledge/features/llm-deepseek-r1/`
-
-### 3. Open WebUI Service
-
-```mermaid
-flowchart TD
-    WebUiRoot["knowledge/services/open-webui/"]
-    WebUiRoot --> WebUiSpec["service-open-webui.md"]
-    WebUiRoot --> WebUiFeatures["features/"]
-    WebUiFeatures --> WebUiFeatureDir["llm-chatting/"]
-    WebUiFeatureDir --> WebUiFeature["feature-llm-chatting.md"]
-    WebUiRoot --> WebUiDocs["docs/"]
-    WebUiDocs --> WebUiTech["TECHNOLOGY.md"]
-```
-
-- **Назначение:** Web интерфейс для LLM
-- **Deployment:** Nomad job
-- **Hub Feature:** `knowledge/features/llm-chatting/`
-
-### 4. Petstore Service
-
-```mermaid
-flowchart TD
-    PetstoreRoot["knowledge/services/petstore/"]
-    PetstoreRoot --> PetstoreSpec["service-petstore.md"]
-    PetstoreRoot --> PetstoreFeatures["features/"]
-    PetstoreFeatures --> PetstoreFeatureDir["infrastructure-e2e-testing/"]
-    PetstoreFeatureDir --> PetstoreFeature["feature-infrastructure-e2e-testing.md"]
-```
-
-- **Назначение:** Эталонный сервис для E2E тестирования инфраструктуры
-- **Deployment:** Nomad job
-- **Hub Feature:** `knowledge/features/infrastructure-e2e-testing/`
+- **Hub Feature:** `knowledge/features/metrics-collection/`
 
 ---
 
