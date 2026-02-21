@@ -56,7 +56,6 @@ The task of the AI Agent is to help the developer during this process.
   - Forbidden content: any documentation (README.md, GUIDE.md, design docs, runbooks).
 - `knowledge/`: Canonical specs, standards, and documentation.
 - `scripts/`: Automation scripts.
-- `docker/`: Docker Compose and infrastructure configs.
 - `.data/`, `.logs/`, `.tmp/`, `.bak/`: Local development data and logs (ignored by git).
 
 ## 🧾 Specs & Documentation

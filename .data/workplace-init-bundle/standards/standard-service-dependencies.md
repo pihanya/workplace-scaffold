@@ -1,6 +1,6 @@
 # Стандарт Управления Зависимостями Между Сервисами
 
-[К оглавлению][backlink-index]
+[⬅️ К оглавлению][backlink-index]
 
 <!-- doc-deps
 id: standard-service-dependencies

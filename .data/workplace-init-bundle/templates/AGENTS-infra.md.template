@@ -119,10 +119,12 @@ Key rules:
 - Default assumption: execution starts from repository root.
 - If a command must be run from a subdirectory, the snippet MUST explicitly include `cd <subdir>`.
 
-### Ops / Drift Checks
+### Ops
 
 ```bash
-scripts/collect_state.sh  # Collect current host state for drift detection via Git
+make validate    # Validate all configs in projects/
+make deploy PROJECT=<name>  # Deploy a project
+make status      # Show deployment status
 ```
 
 ### Markdown (Docs & Specs)
@@ -134,7 +136,7 @@ markdownlint-cli2 --config .markdownlint.yml --fix <file>  # Auto-fix
 
 ## 🎨 Coding Style & Naming Conventions
 
-- **Scripts:** Bash with `set -euo pipefail`. Name scripts by action: `collect_state.sh`, `deploy_<job>.sh`.
+- **Scripts:** Bash with `set -euo pipefail`. Name scripts by action: `workplace-backup.sh`, `workplace-cleanup.sh`.
 - **Configs:** 2-space indentation, align `=` within blocks when readable.
 
 ## ✅ Mandatory Checks

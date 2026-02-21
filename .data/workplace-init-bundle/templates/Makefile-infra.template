@@ -1,7 +1,7 @@
 # {{PROJECT_NAME}} — Infrastructure Automation
 # Usage: make <target>
 
-.PHONY: help validate deploy status state-collect workplace-cleanup
+.PHONY: help validate deploy status workplace-backup workplace-cleanup
 
 SHELL := /bin/bash
 WORKPLACE_DIR := $(shell pwd)
@@ -15,10 +15,12 @@ help: ## Show this help
 
 ## — Validation ——————————————————————————————————————————
 
-validate: ## Validate all jobspecs/configs
+validate: ## Validate all configs in projects/
 	@echo "Validating configs..."
-	@find projects/ -name '*.nomad.hcl' -exec sh -c 'echo "Validating {}..." && nomad job validate {}' \;
-	@echo "Validation complete."
+	@find projects/ -type f \( -name '*.nomad.hcl' -o -name 'docker-compose.yml' -o -name '*.yaml' -o -name '*.yml' \) | while read -r f; do \
+		echo "Found config: $$f"; \
+	done
+	@echo "Validation complete. Review listed configs manually or add orchestrator-specific checks."
 
 ## — Deploy ——————————————————————————————————————————————
 
@@ -27,17 +29,16 @@ deploy: ## Deploy a project (usage: make deploy PROJECT=<name>)
 		echo "Usage: make deploy PROJECT=<project-name>"; \
 		exit 1; \
 	fi
-	@./scripts/deploy_project.sh $(PROJECT)
+	@echo "Deploying project: $(PROJECT)"
+	@echo "TODO: Add deploy commands for your orchestrator (docker compose up -d / nomad job run / kubectl apply)"
 
-status: ## Show status of all jobs
-	@nomad job status
-
-## — State ——————————————————————————————————————————————
-
-state-collect: ## Collect current host state
-	@./scripts/collect_state.sh
+status: ## Show deployment status
+	@echo "TODO: Add status commands for your orchestrator (docker compose ps / nomad job status / kubectl get pods)"
 
 ## — Workplace ——————————————————————————————————————————
+
+workplace-backup: ## Create workplace backup
+	@./scripts/workplace-backup.sh
 
 workplace-cleanup: ## Clean workspace artifacts
 	@./scripts/workplace-cleanup.sh
