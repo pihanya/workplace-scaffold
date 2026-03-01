@@ -166,28 +166,30 @@ Memory-файлы **должны** содержать ссылки на связ
 
 ## 📝 Именование Файлов
 
-**Формат:** `YYYY-MM-DD-HHMM_<kebab-case-title>.md`
+**Формат:** `YYYY-MM-DD/YYYY-MM-DD-HHMM_<kebab-case-title>.md`
 
 ### Компоненты
 
 | Компонент | Формат       | Пример                     | Описание                          |
 | --------- | ------------ | -------------------------- | --------------------------------- |
-| **Date**  | `YYYY-MM-DD` | `2026-02-08`               | Дата события                      |
+| **Dir**   | `YYYY-MM-DD` | `2026-02-08`               | Директория (дата события)         |
+| **Date**  | `YYYY-MM-DD` | `2026-02-08`               | Дата события (в имени файла)      |
 | **Time**  | `HHMM`       | `1105`                     | Время (24ч, UTC) без разделителей |
 | **Title** | `kebab-case` | `my-service-memory-tuning` | Краткое описание содержимого      |
 
-### Примеры имён
+### Примеры путей
 
 ```text
-2026-02-08-1105_my-service-memory-tuning.md
-2026-02-02-0353_service-deployment.md
-2026-02-02-0301_monitoring-tool-installation.md
-2026-01-15-1423_outage-postgres-recovery.md
+2026-02-08/2026-02-08-1105_my-service-memory-tuning.md
+2026-02-02/2026-02-02-0353_service-deployment.md
+2026-02-02/2026-02-02-0301_monitoring-tool-installation.md
+2026-01-15/2026-01-15-1423_outage-postgres-recovery.md
 ```
 
 ### Правила
 
 - **Никогда** не используйте пробелы — только kebab-case
+- **Всегда** создавайте поддиректорию с датой `YYYY-MM-DD`
 - **Сокращайте** названия сервисов при известности (`app` vs `application-server`)
 - **Указывайте** действие (`tuning`, `deployment`, `rollback`)
 - **При повторном событии** — создавайте новый файл с новой датой
@@ -318,7 +320,7 @@ resources:
 - **Commands:** [Benchmark Commands][benchmark-cmd]
 
 [search-service]: ../../services/search-service/service-search-service.md
-[benchmark-cmd]: ./2026-02-08-2047_search-service-benchmark-commands-documented.md
+[benchmark-cmd]: ./2026-02-08/2026-02-08-2047_search-service-benchmark-commands-documented.md
 ```
 
 ### Шаблон Documentation
@@ -363,7 +365,7 @@ hey -z 30s -c 100 -m POST \
 - **Tuning:** [CPU Tuning][cpu-tuning]
 
 [search-service]: ../../services/search-service/service-search-service.md
-[cpu-tuning]: ./2026-02-08-1155_search-service-cpu-thread-tuning.md
+[cpu-tuning]: ./2026-02-08/2026-02-08-1155_search-service-cpu-thread-tuning.md
 ````
 
 ---
@@ -374,7 +376,7 @@ hey -z 30s -c 100 -m POST \
 
 ### Обязательные элементы
 
-- [ ] Имя файла: `YYYY-MM-DD-HHMM_kebab-case-title.md`
+- [ ] Путь: `YYYY-MM-DD/YYYY-MM-DD-HHMM_kebab-case-title.md`
 - [ ] Заголовок H1 без emoji
 - [ ] Метаданные: Date, Type, Action, Status
 - [ ] Раздел 🎯 Context — почему это сделано
