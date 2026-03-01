@@ -1,0 +1,70 @@
+# markdownlint configuration
+# https://github.com/DavidAnson/markdownlint
+
+# MD003 - Heading style
+MD003:
+  style: "atx"
+
+# MD004 - Unordered list style
+MD004:
+  style: "dash"
+
+# MD007 - Unordered list indentation
+MD007:
+  indent: 2
+
+# MD009 - Trailing spaces
+MD009:
+  br_spaces: 0
+
+# MD010 - Hard tabs
+MD010: true
+
+# MD012 - Multiple consecutive blank lines
+MD012:
+  maximum: 1
+
+# MD013 - Line length (disabled for flexibility)
+MD013: false
+
+# MD024 - Multiple headings with the same content
+MD024:
+  siblings_only: true
+
+# MD025 - Single title/top-level heading
+MD025: true
+
+# MD026 - Trailing punctuation in heading
+MD026:
+  punctuation: ".,;:!"
+
+# MD029 - Ordered list item prefix
+MD029:
+  style: "ordered"
+
+# MD033 - Inline HTML
+MD033:
+  allowed_elements:
+    - "br"
+
+# MD036 - Emphasis used instead of a heading
+MD036: false
+
+# MD041 - First line in a file should be a top-level heading
+MD041: true
+
+# MD046 - Code block style
+MD046:
+  style: "fenced"
+
+# MD048 - Code fence style
+MD048:
+  style: "backtick"
+
+# MD049 - Emphasis style
+MD049:
+  style: "asterisk"
+
+# MD050 - Strong style
+MD050:
+  style: "asterisk"

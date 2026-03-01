@@ -57,7 +57,7 @@
 
 Выведи сводку всех параметров в виде таблицы и запроси подтверждение:
 
-```
+```txt
 Параметры генерации:
 ┌─────────────────┬────────────────────┐
 │ Параметр        │ Значение           │
@@ -100,7 +100,7 @@ git checkout -b main
 
 #### 2.3. Директория `knowledge/`
 
-```
+```txt
 knowledge/
 ├── INDEX.md                    # Главный навигационный хаб
 ├── services/
@@ -125,7 +125,7 @@ knowledge/
 
 #### 2.4. Директория `scripts/`
 
-```
+```txt
 scripts/
 ├── workplace-bootstrap.sh      # Bootstrap-скрипт (идемпотентный)
 ├── workplace-cleanup.sh        # Очистка артефактов сборки
@@ -140,7 +140,7 @@ scripts/
 
 Для каждого элемента из `projects_list` создай:
 
-```
+```txt
 projects/
 └── <project-name>/
     └── .gitkeep
@@ -152,7 +152,7 @@ projects/
 
 Создай и добавь в `.gitignore`:
 
-```
+```txt
 .data/
 .logs/
 .tmp/
@@ -292,7 +292,7 @@ projects/
 
 **Для `code` + `java`/`kotlin` (Gradle):**
 
-```
+```txt
 projects/<project-name>/
 ├── build.gradle.kts
 ├── settings.gradle.kts
@@ -309,7 +309,7 @@ projects/<project-name>/
 
 **Для `code` + `java`/`kotlin` (Maven):**
 
-```
+```txt
 projects/<project-name>/
 ├── pom.xml
 ├── src/
@@ -324,7 +324,7 @@ projects/<project-name>/
 
 **Для `code` + `typescript` (Yarn):**
 
-```
+```txt
 projects/<project-name>/
 ├── package.json
 ├── tsconfig.json
@@ -335,7 +335,7 @@ projects/<project-name>/
 
 **Для `infra` (Nomad):**
 
-```
+```txt
 projects/<project-name>/
 ├── <project-name>.nomad.hcl
 └── # Дополнительные конфиги по необходимости
@@ -343,7 +343,7 @@ projects/<project-name>/
 
 **Для `infra` (Docker Compose):**
 
-```
+```txt
 projects/<project-name>/
 ├── docker-compose.yml
 └── # Дополнительные конфиги
@@ -353,7 +353,7 @@ projects/<project-name>/
 
 Для каждого проекта создай:
 
-```
+```txt
 knowledge/services/<project-name>/
 ├── service-<project-name>.md    # Stub спецификации сервиса
 └── features/
@@ -426,7 +426,7 @@ git commit -m "feat: initialize ${project_code} workplace
 
 Выведи финальную сводку:
 
-```
+```txt
 Workplace "${project_code}" успешно инициализирован.
 
 Структура:
@@ -447,8 +447,10 @@ Workplace "${project_code}" успешно инициализирован.
 
 Бандл содержит все шаблоны и скрипты, необходимые для генерации:
 
-```
+```txt
 .data/workplace-init-bundle/
+├── WORKPLACE_GENERATION_PROMPT.md
+├── WORKPLACE_UPDATE_PROMPT.md
 ├── templates/
 │   ├── gitignore-code.template
 │   ├── gitignore-infra.template
@@ -615,7 +617,7 @@ Workplace "${project_code}" успешно инициализирован.
 
 ## Пример полного выполнения
 
-```
+```txt
 Пользователь: Создай workplace для проекта банковских диспутов
 
 Агент (Фаза 1):
