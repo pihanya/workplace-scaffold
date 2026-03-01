@@ -113,6 +113,7 @@ knowledge/
 │   ├── standard-service-specification.md
 │   ├── standard-feature-specification.md
 │   ├── standard-service-dependencies.md
+│   ├── standard-supporting-documentation.md
 │   └── standard-agent-memory-format.md  # Только если memory_enabled=true
 └── memory/                     # Только если memory_enabled=true
     ├── INDEX.md
@@ -472,6 +473,7 @@ Workplace "${project_code}" успешно инициализирован.
 │   ├── standard-service-specification.md
 │   ├── standard-feature-specification.md
 │   ├── standard-service-dependencies.md
+│   ├── standard-supporting-documentation.md
 │   └── standard-agent-memory-format.md
 └── scripts/
     ├── workplace-bootstrap.sh.template

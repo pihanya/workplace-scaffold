@@ -354,8 +354,10 @@ flowchart TD
 - [Стандарт общего формата спецификаций][standard-common-format] — структура документа, метаданные, навигация
 - [Стандарт управления зависимостями между сервисами][standard-dependencies] — dependency mapping, deployment order, blast radius
 - [Стандарт специфицирования фичей][standard-features] — Hub-and-Node паттерн для feature specs
+- [Стандарт вспомогательной документации][standard-supporting-docs] — формат `TECHNOLOGY.md`, `RUNBOOK.md`, `TROUBLESHOOTING.md`
 
 [standard-common-format]: ./standard-specification-common-format.md
 [standard-dependencies]: ./standard-service-dependencies.md
 [standard-features]: ./standard-feature-specification.md
+[standard-supporting-docs]: ./standard-supporting-documentation.md
 [backlink-index]: ./INDEX.md

@@ -101,6 +101,7 @@ cp .env.example .env              # Настроить переменные ок
 │   ├── standard-service-specification.md
 │   ├── standard-feature-specification.md
 │   ├── standard-service-dependencies.md
+│   ├── standard-supporting-documentation.md
 │   └── standard-agent-memory-format.md
 └── scripts/                         # Шаблоны скриптов автоматизации
     ├── workplace-bootstrap.sh.template
@@ -129,7 +130,7 @@ cp .env.example .env              # Настроить переменные ок
 
 ## Стандарты
 
-Бандл включает 5 стандартов документации:
+Бандл включает 6 стандартов документации:
 
 | Стандарт                               | Назначение                                                      |
 | :------------------------------------- | :-------------------------------------------------------------- |
@@ -137,6 +138,7 @@ cp .env.example .env              # Настроить переменные ок
 | `standard-service-specification`       | Структура спецификации сервиса: цель, API, зависимости, деплой  |
 | `standard-feature-specification`       | Hub-and-Node паттерн для фичей                                  |
 | `standard-service-dependencies`        | Типы зависимостей, blast radius, порядок деплоя, API контракты  |
+| `standard-supporting-documentation`    | Шаблоны для `TECHNOLOGY.md`, `RUNBOOK.md`, `TROUBLESHOOTING.md` |
 | `standard-agent-memory-format`         | Формат memory-файлов для фиксации решений агентов (опционально) |
 
 Стандарты универсальны и не привязаны к конкретному языку, фреймворку или оркестратору.

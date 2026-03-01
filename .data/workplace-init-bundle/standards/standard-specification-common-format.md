@@ -9,6 +9,7 @@ provides_for:
   - knowledge/standards/standard-service-specification.md
   - knowledge/standards/standard-feature-specification.md
   - knowledge/standards/standard-service-dependencies.md
+  - knowledge/standards/standard-supporting-documentation.md
 -->
 
 Этот стандарт определяет универсальный формат для документов спецификаций (Markdown) в проекте. Соблюдение этого формата обеспечивает:

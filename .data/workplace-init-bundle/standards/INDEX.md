@@ -24,6 +24,9 @@
 - **[Стандарт управления зависимостями между сервисами][standard-deps]**
   Документирование, управление и валидация зависимостей между сервисами. Включает dependency mapping, deployment order, blast radius analysis.
 
+- **[Стандарт вспомогательной документации][standard-supporting]**
+  Шаблоны и правила для `TECHNOLOGY.md`, `RUNBOOK.md`, `TROUBLESHOOTING.md` в `knowledge/services/<service>/docs/`.
+
 - **[Стандарт формата memory-файлов агента][standard-memory]**
   Формат и структура для memory-файлов в `knowledge/memory/agent-memories/`. Определяет типы записей, обязательные поля, шаблоны и интеграцию с документацией.
 
@@ -37,6 +40,7 @@ flowchart TD
     Common --> ServiceSpec["standard-service-specification.md"]
     Common --> FeatureSpec["standard-feature-specification.md"]
     Common --> DepsSpec["standard-service-dependencies.md"]
+    Common --> SupportingDocs["standard-supporting-documentation.md"]
     Common --> AgentMemory["standard-agent-memory-format.md"]
 ```
 
@@ -57,11 +61,20 @@ flowchart TD
 3. Создайте Node документы в каждом затронутом сервисе
 4. Если фича затрагивает 2+ сервиса, заполните разделы Deployment Sequence и Blast Radius
 
+### Для операционной документации сервиса
+
+1. Откройте спецификацию сервиса (`knowledge/services/<service>/service-<service>.md`)
+2. Создайте `knowledge/services/<service>/docs/TECHNOLOGY.md`
+3. Создайте `knowledge/services/<service>/docs/RUNBOOK.md`
+4. Создайте `knowledge/services/<service>/docs/TROUBLESHOOTING.md`
+5. Следуйте [Стандарту вспомогательной документации][standard-supporting]
+
 ---
 
 [standard-common]: ./standard-specification-common-format.md
 [standard-services]: ./standard-service-specification.md
 [standard-features]: ./standard-feature-specification.md
 [standard-deps]: ./standard-service-dependencies.md
+[standard-supporting]: ./standard-supporting-documentation.md
 [standard-memory]: ./standard-agent-memory-format.md
 [backlink-parent]: ../INDEX.md
