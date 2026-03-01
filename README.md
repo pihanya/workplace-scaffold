@@ -78,11 +78,33 @@ cp .env.example .env              # Настроить переменные ок
 
 ---
 
+## Обновление существующего проекта
+
+Если проект уже был инициализирован ранее, и вы хотите обновить стандарты и скрипты до новой версии `workplace-scaffold`:
+
+1. Обновите бандл в директории проекта:
+
+```bash
+rm -rf .data/workplace-init-bundle
+cp -r /path/to/new/workplace-init-bundle .data/
+```
+
+2. Откройте AI-агент в корне проекта и передайте промпт на обновление:
+
+```text
+Прочитай .data/workplace-init-bundle/WORKPLACE_UPDATE_PROMPT.md и выполни обновление workplace.
+```
+
+Агент проведёт через 4 фазы безопасного обновления, перезапишет стандарты и скрипты, а также поможет аккуратно слить изменения (merge) в ваши кастомные файлы `AGENTS.md` и `Makefile`.
+
+---
+
 ## Структура бандла
 
 ```text
 .data/workplace-init-bundle/
-├── WORKPLACE_GENERATION_PROMPT.md   # Промпт для AI-агента
+├── WORKPLACE_GENERATION_PROMPT.md   # Промпт для генерации нового workplace
+├── WORKPLACE_UPDATE_PROMPT.md       # Промпт для обновления существующего workplace
 ├── templates/                       # Шаблоны файлов (параметризуются через {{PLACEHOLDER}})
 │   ├── AGENTS-{code,infra,monorepo}.md.template
 │   ├── README.md.template
