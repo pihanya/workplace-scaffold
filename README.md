@@ -120,6 +120,7 @@ cp -r /path/to/new/workplace-init-bundle .data/
 ├── standards/                       # Стандарты документации (копируются as-is)
 │   ├── INDEX.md
 │   ├── standard-specification-common-format.md
+│   ├── standard-temp-files-organization.md
 │   ├── standard-service-specification.md
 │   ├── standard-feature-specification.md
 │   ├── standard-service-dependencies.md
@@ -130,7 +131,10 @@ cp -r /path/to/new/workplace-init-bundle .data/
     ├── workplace-cleanup.sh.template
     ├── workplace-backup.sh.template
     ├── workplace-restore.sh.template
-    └── workplace-print-dir.sh.template
+    ├── workplace-print-dir.sh.template
+    └── memory/                      # Только если memory_enabled=true
+        ├── create_agent_memory.sh.template
+        └── validate_agent_memories.sh.template
 ```
 
 ### Шаблонизация
@@ -152,11 +156,12 @@ cp -r /path/to/new/workplace-init-bundle .data/
 
 ## Стандарты
 
-Бандл включает 6 стандартов документации:
+Бандл включает 7 стандартов документации:
 
 | Стандарт                               | Назначение                                                      |
 | :------------------------------------- | :-------------------------------------------------------------- |
 | `standard-specification-common-format` | Общий формат документов: H1 с emoji, backlink, doc-deps, ссылки |
+| `standard-temp-files-organization`     | Контракт хранения временных артефактов в `.tmp/`                |
 | `standard-service-specification`       | Структура спецификации сервиса: цель, API, зависимости, деплой  |
 | `standard-feature-specification`       | Hub-and-Node паттерн для фичей                                  |
 | `standard-service-dependencies`        | Типы зависимостей, blast radius, порядок деплоя, API контракты  |
@@ -194,10 +199,14 @@ cp -r /path/to/new/workplace-init-bundle .data/
 
 Генерируемый workplace включает набор идемпотентных скриптов:
 
-| Скрипт                   | Назначение                                            |
-| :----------------------- | :---------------------------------------------------- |
-| `workplace-bootstrap.sh` | Инициализация: проверка зависимостей, создание папок  |
-| `workplace-cleanup.sh`   | Очистка артефактов сборки и логов (`--dry-run`)       |
-| `workplace-backup.sh`    | Архивация workplace (tar.gz/zip) с контрольной суммой |
-| `workplace-restore.sh`   | Восстановление из архива с проверкой целостности      |
-| `workplace-print-dir.sh` | Определение корня workplace                           |
+| Скрипт                              | Назначение                                                                |
+| :---------------------------------- | :------------------------------------------------------------------------ |
+| `workplace-bootstrap.sh`            | Инициализация: проверка зависимостей, создание папок                      |
+| `workplace-cleanup.sh`              | Очистка артефактов сборки и логов (`--dry-run`)                           |
+| `workplace-backup.sh`               | Архивация workplace (tar.gz/zip) с контрольной суммой                     |
+| `workplace-restore.sh`              | Восстановление из архива с проверкой целостности                          |
+| `workplace-print-dir.sh`            | Определение корня workplace                                               |
+| `memory/create_agent_memory.sh`     | Создание memory-файлов через UTC-safe CLI (если memory включен)           |
+| `memory/validate_agent_memories.sh` | Валидация memory-файлов и `agent-memories/INDEX.md` (если memory включен) |
+
+При `memory_enabled=true` процесс создания/обновления memory-файлов обязателен через `scripts/memory/create_agent_memory.sh` и последующую проверку `scripts/memory/validate_agent_memories.sh`.

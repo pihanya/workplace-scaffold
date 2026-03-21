@@ -98,6 +98,7 @@ EXPECTED_FILES=(
     "README.md"
     ".gitignore"
     ".markdownlint.yml"
+    "knowledge/standards/standard-temp-files-organization.md"
 )
 
 for file in "${EXPECTED_FILES[@]}"; do
@@ -109,6 +110,30 @@ for file in "${EXPECTED_FILES[@]}"; do
         STRUCTURE_OK=false
     fi
 done
+
+if [ -d "${WORKPLACE_DIR}/knowledge/memory" ]; then
+    log_info "Memory subsystem detected. Verifying memory structure..."
+
+    MEMORY_PATHS=(
+        "knowledge/memory/INDEX.md"
+        "knowledge/memory/agent-memories/INDEX.md"
+        "knowledge/standards/standard-agent-memory-format.md"
+        "scripts/memory/create_agent_memory.sh"
+        "scripts/memory/validate_agent_memories.sh"
+    )
+
+    for path in "${MEMORY_PATHS[@]}"; do
+        target="${WORKPLACE_DIR}/${path}"
+        if [ -f "$target" ]; then
+            log_ok "${path}"
+        else
+            log_error "${path} MISSING"
+            STRUCTURE_OK=false
+        fi
+    done
+
+    echo ""
+fi
 
 echo ""
 

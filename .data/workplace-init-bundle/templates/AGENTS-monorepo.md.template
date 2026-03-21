@@ -75,6 +75,7 @@ This repository uses a structured documentation approach within the `knowledge/`
 - **Service Specs:** Located in `knowledge/services/`. Each service has `service-<name>.md` (see `knowledge/standards/standard-service-specification.md`).
 - **Standards:** Located in `knowledge/standards/`.
 - **Common Format:** Use `knowledge/standards/standard-specification-common-format.md` for shared structure.
+- **Temporary Files:** Use `knowledge/standards/standard-temp-files-organization.md` for `.tmp/` session paths.
 - **When implementing changes:** Always consult `knowledge/features/` for architectural context and `knowledge/services/` for service-specific constraints.
 
 ## 📐 Document Structure Requirements
@@ -90,6 +91,20 @@ Key rules:
 - Use reference-style links: `[Text][link-id]` + footer definition
 - `[backlink-index]` must be the last line of the file
 
+## 🗂️ Temporary Files (`.tmp/`)
+
+- **Standard:** Follow `knowledge/standards/standard-temp-files-organization.md`.
+- **Session path:** `.tmp/YYYY-MM/YYYY-MM-DD-HHMM_kebab-case-title/` (UTC timestamp).
+- **Rule:** Keep all agent temporary artifacts in `.tmp/` unless an exception is explicitly documented.
+
+## 🧠 Memory Management (if enabled)
+
+- Apply this section only when `knowledge/memory/` exists (`memory_enabled=true`).
+- **Standards:** `knowledge/standards/standard-agent-memory-format.md` + `knowledge/standards/standard-temp-files-organization.md`.
+- **CLI create:** use `bash scripts/memory/create_agent_memory.sh` with section content passed only via `--context-file`, `--changes-file`, `--validation-file`, `--impact-file`.
+- **CLI validate:** run `bash scripts/memory/validate_agent_memories.sh` and targeted check with `--file`.
+- **File naming:** `knowledge/memory/agent-memories/YYYY-MM-DD/YYYY-MM-DD-HHMM_kebab-case-title.md`.
+
 ## 🧰 Build, Test, and Development Commands
 
 ### 📍 Command Execution Context
@@ -103,6 +118,13 @@ Key rules:
 make build        # Build all sub-projects (respects dependency order)
 make test         # Run all tests
 make clean        # Clean build artifacts
+```
+
+### Memory (if enabled)
+
+```bash
+make memory-create    # Wrapper over scripts/memory/create_agent_memory.sh
+make memory-validate  # Wrapper over scripts/memory/validate_agent_memories.sh
 ```
 
 ### Markdown (Docs & Specs)
@@ -128,12 +150,13 @@ markdownlint-cli2 --config .markdownlint.yml --fix <file>  # Auto-fix
 
 ## ✅ Mandatory Checks
 
-| Check ID  | Mandatory when                        | Command                                                       |
-| :-------- | :------------------------------------ | :------------------------------------------------------------ |
-| `CHK-001` | Any `scripts/*.sh` change             | `bash -n <script>`                                            |
-| `CHK-002` | Any changed `*.md` under `knowledge/` | `markdownlint-cli2 --config .markdownlint.yml <changed-docs>` |
-| `CHK-003` | Any docs change with links            | Verify referenced local paths exist                           |
-| `CHK-004` | Any change in a sub-project           | Run tests for affected sub-project and its dependents         |
+| Check ID  | Mandatory when                                                   | Command                                                                    |
+| :-------- | :--------------------------------------------------------------- | :------------------------------------------------------------------------- |
+| `CHK-001` | Any `scripts/*.sh` change                                        | `bash -n <script>`                                                         |
+| `CHK-002` | Any changed `*.md` under `knowledge/`                            | `markdownlint-cli2 --config .markdownlint.yml <changed-docs>`              |
+| `CHK-003` | Any docs change with links                                       | Verify referenced local paths exist                                        |
+| `CHK-004` | Any change in a sub-project                                      | Run tests for affected sub-project and its dependents                      |
+| `CHK-005` | Any change under `knowledge/memory/agent-memories/` (if enabled) | `bash scripts/memory/validate_agent_memories.sh --file <memory-file-path>` |
 
 ## 🧾 Commit & Pull Request Guidelines
 

@@ -71,6 +71,7 @@ This repository uses a structured documentation approach within the `knowledge/`
 - **Service Specs:** Located in `knowledge/services/`. Each service has `service-<name>.md`, `features/` subdirectory, and `docs/` subdirectory (see `knowledge/standards/standard-service-specification.md`).
 - **Standards:** Located in `knowledge/standards/`.
 - **Common Format:** Use `knowledge/standards/standard-specification-common-format.md` for shared structure.
+- **Temporary Files:** Use `knowledge/standards/standard-temp-files-organization.md` for `.tmp/` session paths.
 
 ## 📐 Document Structure Requirements
 
@@ -95,11 +96,19 @@ Key rules:
 | `knowledge/standards/` | Development standards                              |
 | `knowledge/memory/`    | Host specifications, state, agent decision history |
 
+## 🗂️ Temporary Files (`.tmp/`)
+
+- **Standard:** Follow `knowledge/standards/standard-temp-files-organization.md`.
+- **Session path:** `.tmp/YYYY-MM/YYYY-MM-DD-HHMM_kebab-case-title/` (UTC timestamp).
+- **Rule:** Keep all agent temporary artifacts in `.tmp/` unless an exception is explicitly documented.
+
 ## 📚 Sources of Truth
 
 - **Navigation:** `knowledge/INDEX.md`, `knowledge/*/INDEX.md`
 - **Current host state:** `knowledge/memory/host-state/`
 - **Agent Memories:** `knowledge/memory/agent-memories/`
+- **Memory Format Standard:** `knowledge/standards/standard-agent-memory-format.md`
+- **Temp Files Standard:** `knowledge/standards/standard-temp-files-organization.md`
 - **Service specs:** `knowledge/services/<name>/service-<name>.md`
 - **Feature specs:** `knowledge/features/<feature>/feature-<feature>.md`
 - **Standards:** `knowledge/standards/standard-*.md`
@@ -107,10 +116,12 @@ Key rules:
 ## 🧠 Memory Management
 
 - **Directory:** `knowledge/memory/agent-memories/`
-- **Standard:** Follow `knowledge/standards/standard-agent-memory-format.md`
-- **File Naming:** `YYYY-MM-DD-HHMM_${title}.md` (kebab-case title).
-- **Content:** Store significant decisions, major state changes, and non-code context that helps future agents.
-- **Process:** Create a new file for each discrete memory/event. Do not maintain a single monolithic log.
+- **Standards:** Follow `knowledge/standards/standard-agent-memory-format.md` and `knowledge/standards/standard-temp-files-organization.md`.
+- **File Naming:** `YYYY-MM-DD/YYYY-MM-DD-HHMM_kebab-case-title.md`.
+- **Creation CLI (mandatory):** `bash scripts/memory/create_agent_memory.sh ... --context-file ... --changes-file ... --validation-file ... --impact-file ...`.
+- **Section input rule (mandatory):** pass memory section content only through `--*-file` options prepared in `.tmp/` session path.
+- **Validation (mandatory):** run `bash scripts/memory/validate_agent_memories.sh --file <memory-file-path>` for each new/edited memory entry.
+- **Content scope:** Store significant decisions, major state changes, and non-code context that helps future agents.
 
 ## 🧰 Build, Test, and Development Commands
 
@@ -125,6 +136,8 @@ Key rules:
 make validate    # Validate all configs in projects/
 make deploy PROJECT=<name>  # Deploy a project
 make status      # Show deployment status
+make memory-create    # Create agent memory entry via CLI wrapper
+make memory-validate  # Validate memory entries
 ```
 
 ### Markdown (Docs & Specs)
@@ -141,12 +154,13 @@ markdownlint-cli2 --config .markdownlint.yml --fix <file>  # Auto-fix
 
 ## ✅ Mandatory Checks
 
-| Check ID  | Mandatory when                        | Command                                                       |
-| :-------- | :------------------------------------ | :------------------------------------------------------------ |
-| `CHK-001` | Any `scripts/*.sh` change             | `bash -n <script>`                                            |
-| `CHK-002` | Any `scripts/*.sh` change             | `shellcheck <script>`                                         |
-| `CHK-003` | Any changed `*.md` under `knowledge/` | `markdownlint-cli2 --config .markdownlint.yml <changed-docs>` |
-| `CHK-004` | Any docs change with links            | Verify referenced local paths exist                           |
+| Check ID  | Mandatory when                                      | Command                                                                    |
+| :-------- | :-------------------------------------------------- | :------------------------------------------------------------------------- |
+| `CHK-001` | Any `scripts/*.sh` change                           | `bash -n <script>`                                                         |
+| `CHK-002` | Any `scripts/*.sh` change                           | `shellcheck <script>`                                                      |
+| `CHK-003` | Any changed `*.md` under `knowledge/`               | `markdownlint-cli2 --config .markdownlint.yml <changed-docs>`              |
+| `CHK-004` | Any docs change with links                          | Verify referenced local paths exist                                        |
+| `CHK-005` | Any change under `knowledge/memory/agent-memories/` | `bash scripts/memory/validate_agent_memories.sh --file <memory-file-path>` |
 
 ## 🧾 Commit & Pull Request Guidelines
 
