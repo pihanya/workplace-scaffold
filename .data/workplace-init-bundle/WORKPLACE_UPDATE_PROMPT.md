@@ -46,6 +46,7 @@
 
 1. **Стандарты:** Скопируй все файлы из `.data/workplace-init-bundle/standards/` в `knowledge/standards/`. Существующие стандарты можно безопасно перезаписать.
 2. **Скрипты:** Сгенерируй заново скрипты в `scripts/` на основе шаблонов из `.data/workplace-init-bundle/scripts/`, подставив найденный `project_code`. Перезапиши существующие системные скрипты.
+   - Если в проекте включен memory (`knowledge/memory/agent-memories/` существует), также обнови `scripts/memory/create_agent_memory.sh` и `scripts/memory/validate_agent_memories.sh`.
 3. **Вспомогательные файлы:** Обнови `.markdownlint.yml`, если он изменился в бандле.
 
 #### Контрольная точка 2
@@ -61,10 +62,11 @@
 1. **`AGENTS.md` (или `CLAUDE.md` / `GEMINI.md`):**
    - Сравни текущий файл с `templates/AGENTS-{project_type}.md.template`.
    - Если в шаблоне появились новые системные секции (например, новые проверки в Mandatory Checks) — добавь их в текущий файл.
+   - Добавь/обнови правила `.tmp` session contract и memory CLI-процесс (если memory включен).
    - **Строго сохраняй** все существующие специфичные для проекта инструкции пользователя.
 2. **`Makefile`:**
    - Проверь `templates/Makefile-{project_type}.template`.
-   - Добавь новые системные target-ы (например, связанные с бэкапами или линтингом).
+   - Добавь новые системные target-ы (например, связанные с бэкапами, линтингом и memory CLI).
    - **Строго сохраняй** пользовательские target-ы сборки.
 3. **`.gitignore` / `.gitattributes`:** Добавь новые правила из шаблонов, если их не хватает в проекте.
 4. **`README.md`:** Проверь, не изменилась ли рекомендуемая структура в `templates/README.md.template`. Если да, предложи точечные обновления.
@@ -79,7 +81,8 @@
 
 1. Запусти `./scripts/workplace-bootstrap.sh` для проверки целостности структуры.
 2. Выполни проверку `markdownlint-cli2 --config .markdownlint.yml README.md knowledge/**/*.md` (если инструмент доступен).
-3. Убедись, что все индексы (`INDEX.md` в папке `knowledge/` и подпапках) актуальны.
+3. Если включен memory, запусти `bash scripts/memory/validate_agent_memories.sh`
+4. Убедись, что все индексы (`INDEX.md` в папке `knowledge/` и подпапках) актуальны.
 
 #### Контрольная точка 4
 

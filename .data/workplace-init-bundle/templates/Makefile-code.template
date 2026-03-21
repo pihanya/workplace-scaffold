@@ -1,7 +1,7 @@
 # {{PROJECT_NAME}} — Build Automation
 # Usage: make <target>
 
-.PHONY: help build test clean workplace-backup workplace-cleanup
+.PHONY: help build test clean workplace-backup workplace-cleanup memory-create memory-validate
 
 SHELL := /bin/bash
 WORKPLACE_DIR := $(shell pwd)
@@ -67,3 +67,33 @@ workplace-backup: ## Create workplace backup
 
 workplace-cleanup: ## Clean workspace artifacts
 	@./scripts/workplace-cleanup.sh
+
+memory-create: ## Create agent memory entry (usage: make memory-create TITLE=... TYPE=... ACTION=... STATUS=... CONTEXT_FILE=... CHANGES_FILE=... VALIDATION_FILE=... IMPACT_FILE=...)
+	@if [ ! -f ./scripts/memory/create_agent_memory.sh ]; then \
+		echo "Memory CLI not available (memory_enabled=false)."; \
+		exit 0; \
+	fi
+	@if [ -z "$(TITLE)" ] || [ -z "$(TYPE)" ] || [ -z "$(ACTION)" ] || [ -z "$(STATUS)" ] || [ -z "$(CONTEXT_FILE)" ] || [ -z "$(CHANGES_FILE)" ] || [ -z "$(VALIDATION_FILE)" ] || [ -z "$(IMPACT_FILE)" ]; then \
+		echo "Usage: make memory-create TITLE=\"...\" TYPE=<deployment|installation|configuration|tuning|rollout|documentation|incident|decision|rollback> ACTION=\"...\" STATUS=<completed|in_progress|rolled_back> CONTEXT_FILE=<path> CHANGES_FILE=<path> VALIDATION_FILE=<path> IMPACT_FILE=<path>"; \
+		exit 1; \
+	fi
+	@bash ./scripts/memory/create_agent_memory.sh \
+		--title "$(TITLE)" \
+		--type "$(TYPE)" \
+		--action "$(ACTION)" \
+		--status "$(STATUS)" \
+		--context-file "$(CONTEXT_FILE)" \
+		--changes-file "$(CHANGES_FILE)" \
+		--validation-file "$(VALIDATION_FILE)" \
+		--impact-file "$(IMPACT_FILE)"
+
+memory-validate: ## Validate agent memories (usage: make memory-validate [FILE=knowledge/memory/agent-memories/...])
+	@if [ ! -f ./scripts/memory/validate_agent_memories.sh ]; then \
+		echo "Memory CLI not available (memory_enabled=false)."; \
+		exit 0; \
+	fi
+	@if [ -n "$(FILE)" ]; then \
+		bash ./scripts/memory/validate_agent_memories.sh --file "$(FILE)"; \
+	else \
+		bash ./scripts/memory/validate_agent_memories.sh; \
+	fi

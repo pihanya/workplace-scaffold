@@ -25,10 +25,13 @@
   Документирование, управление и валидация зависимостей между сервисами. Включает dependency mapping, deployment order, blast radius analysis.
 
 - **[Стандарт вспомогательной документации][standard-supporting]**
-  Шаблоны и правила для `TECHNOLOGY.md`, `RUNBOOK.md`, `TROUBLESHOOTING.md` в `knowledge/services/<service>/docs/`.
+  Шаблоны для Technology Reference, Operational Runbook и Troubleshooting Guide в `docs/` поддиректории сервисов.
 
 - **[Стандарт формата memory-файлов агента][standard-memory]**
   Формат и структура для memory-файлов в `knowledge/memory/agent-memories/`. Определяет типы записей, обязательные поля, шаблоны и интеграцию с документацией.
+
+- **[Стандарт организации временных файлов `.tmp/`][standard-temp-files]**
+  Правила для LLM-агентов по хранению временных артефактов в `.tmp/`, включая формат сессионных путей, self-check и hard migration legacy-структур.
 
 ---
 
@@ -42,6 +45,7 @@ flowchart TD
     Common --> DepsSpec["standard-service-dependencies.md"]
     Common --> SupportingDocs["standard-supporting-documentation.md"]
     Common --> AgentMemory["standard-agent-memory-format.md"]
+    Common --> TempFiles["standard-temp-files-organization.md"]
 ```
 
 ---
@@ -77,4 +81,5 @@ flowchart TD
 [standard-deps]: ./standard-service-dependencies.md
 [standard-supporting]: ./standard-supporting-documentation.md
 [standard-memory]: ./standard-agent-memory-format.md
+[standard-temp-files]: ./standard-temp-files-organization.md
 [backlink-parent]: ../INDEX.md

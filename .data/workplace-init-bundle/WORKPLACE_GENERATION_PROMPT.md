@@ -110,6 +110,7 @@ knowledge/
 ├── standards/
 │   ├── INDEX.md                # Индекс стандартов
 │   ├── standard-specification-common-format.md
+│   ├── standard-temp-files-organization.md
 │   ├── standard-service-specification.md
 │   ├── standard-feature-specification.md
 │   ├── standard-service-dependencies.md
@@ -121,7 +122,11 @@ knowledge/
         └── INDEX.md
 ```
 
-Стандарты копируются из `.data/workplace-init-bundle/standards/`. INDEX-файлы генерируются с учётом `project_name` и `project_code`.
+Стандарты копируются из `.data/workplace-init-bundle/standards/`.
+
+Если `memory_enabled=false`, файл `standard-agent-memory-format.md` не копируется.
+
+INDEX-файлы генерируются с учётом `project_name` и `project_code`.
 
 #### 2.4. Директория `scripts/`
 
@@ -131,10 +136,15 @@ scripts/
 ├── workplace-cleanup.sh        # Очистка артефактов сборки
 ├── workplace-backup.sh         # Бэкап workplace (если project_type != infra)
 ├── workplace-restore.sh        # Восстановление workplace из бэкапа
-└── workplace-print-dir.sh      # Утилита: определение корня workplace
+├── workplace-print-dir.sh      # Утилита: определение корня workplace
+└── memory/                     # Только если memory_enabled=true
+    ├── create_agent_memory.sh
+    └── validate_agent_memories.sh
 ```
 
 Скрипты копируются из `.data/workplace-init-bundle/scripts/` и параметризируются через `project_code`.
+
+Если `memory_enabled=true`, также копируются `scripts/memory/*.sh` из соответствующих шаблонов бандла.
 
 #### 2.5. Директория `projects/`
 
@@ -262,11 +272,15 @@ projects/
 9. **Commit & PR Guidelines** — правила коммитов
 10. **Maintenance Hooks** — регистры, которые нужно обновлять при определённых действиях
 
+Дополнительно для всех типов проектов:
+
+- **Temporary Files (`.tmp/`)** — контракт хранения временных артефактов
+- **Memory Management** — правила ведения memory-файлов (если `memory_enabled=true`)
+
 Дополнительно, если `project_type == infra`:
 
-11. **Deploy Gate** — пайплайн деплоя
-12. **Memory Management** — правила ведения memory-файлов
-13. **Sources of Truth** — карта источников истины
+- **Deploy Gate** — пайплайн деплоя
+- **Sources of Truth** — карта источников истины
 
 #### 3.3. AGENTS.md, CLAUDE.md, GEMINI.md
 
@@ -382,7 +396,23 @@ Stub спецификации создаётся из `templates/service-stub.md
 - Проверяет структуру директорий
 - Идемпотентен: повторный запуск не ломает структуру
 
-#### 5.2. Валидация структуры
+#### 5.2. Memory workflow (если `memory_enabled=true`)
+
+Для каждого нового memory-файла используй только CLI-процесс:
+
+1. Подготовь содержимое секций в `.tmp/` по контракту `standard-temp-files-organization.md`:
+   - `.tmp/YYYY-MM/YYYY-MM-DD-HHMM_<session>/memory/context.md`
+   - `.tmp/YYYY-MM/YYYY-MM-DD-HHMM_<session>/memory/changes.md`
+   - `.tmp/YYYY-MM/YYYY-MM-DD-HHMM_<session>/memory/validation.md`
+   - `.tmp/YYYY-MM/YYYY-MM-DD-HHMM_<session>/memory/impact.md`
+2. Создай запись через:
+   - `bash scripts/memory/create_agent_memory.sh ... --context-file ... --changes-file ... --validation-file ... --impact-file ...`
+3. Запусти обязательную проверку:
+   - `bash scripts/memory/validate_agent_memories.sh --file <memory-file-path>`
+
+`MUST`: inline-передача секций memory (`--context`, `--changes`, ...) запрещена.
+
+#### 5.3. Валидация структуры
 
 Выполни проверки:
 
@@ -403,13 +433,19 @@ markdownlint-cli2 --config .markdownlint.yml README.md knowledge/**/*.md
 
 # Проверка скриптов
 bash -n scripts/*.sh
+if [ -d scripts/memory ]; then bash -n scripts/memory/*.sh; fi
 
 # Проверка Bootstrap идемпотентности
 ./scripts/workplace-bootstrap.sh
 ./scripts/workplace-bootstrap.sh  # Повторный запуск не должен ломать ничего
+
+# Проверка memory-процесса (если включен)
+if [ -d knowledge/memory/agent-memories ] && [ -f scripts/memory/validate_agent_memories.sh ]; then
+  bash scripts/memory/validate_agent_memories.sh
+fi
 ```
 
-#### 5.3. Начальный коммит
+#### 5.4. Начальный коммит
 
 ```bash
 git add -A
@@ -472,6 +508,7 @@ Workplace "${project_code}" успешно инициализирован.
 ├── standards/
 │   ├── INDEX.md
 │   ├── standard-specification-common-format.md
+│   ├── standard-temp-files-organization.md
 │   ├── standard-service-specification.md
 │   ├── standard-feature-specification.md
 │   ├── standard-service-dependencies.md
@@ -482,7 +519,10 @@ Workplace "${project_code}" успешно инициализирован.
     ├── workplace-cleanup.sh.template
     ├── workplace-backup.sh.template
     ├── workplace-restore.sh.template
-    └── workplace-print-dir.sh.template
+    ├── workplace-print-dir.sh.template
+    └── memory/
+        ├── create_agent_memory.sh.template
+        └── validate_agent_memories.sh.template
 ```
 
 ### Шаблонизация
